@@ -8,3 +8,13 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.recipe_title
+
+
+class UserFlavorCompound(models.Model):
+    user_id = models.IntegerField()
+    flavor_id = models.IntegerField()
+
+
+class RecipeFlavorCompound(models.Model):
+    user_id = models.IntegerField()
+    flavor_id = models.IntegerField()
