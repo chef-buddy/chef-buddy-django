@@ -78,7 +78,7 @@ def rec_engine(raw_recipes, user_fc_data):
 
     match_dict = user_to_recipe_counter(recipe_id_fc_list, user_fc_data)
     rec_id = max(match_dict, key=match_dict.get)
-    rec_id_fc_list = set([fc_id for recipe_id, fc_id in recipe_id_fc_list if recipe_id == rec_id])
+    rec_id_fc_list = [fc_id for recipe_id, fc_id in recipe_id_fc_list if recipe_id == rec_id]
     return recipe_id_to_object(rec_id, raw_recipes), rec_id_fc_list
 
 
