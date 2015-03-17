@@ -79,4 +79,5 @@ chef_buddy_django/settings.py
 *.pot
 *.pyc
 __pycache__/
+
 local_settings.py
