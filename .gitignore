@@ -67,3 +67,14 @@ chef_buddy_django/settings.py
 
 
 .python-version
+
+# Django settings
+chef_buddy_django/settings.py
+
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+
