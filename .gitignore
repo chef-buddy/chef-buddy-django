@@ -62,6 +62,9 @@ target/
 # Temporary data
 .ipynb_checkpoints/
 
+## Directory-based project format:
+.idea/
+
 # Django settings
 chef_buddy_django/settings.py
 
@@ -76,6 +79,5 @@ chef_buddy_django/settings.py
 *.pot
 *.pyc
 __pycache__/
-local_settings.py
 
-.idea/
+local_settings.py
