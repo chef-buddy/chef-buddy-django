@@ -124,5 +124,7 @@ def normalize_ingredient_appearance():
     return normalized
 
 def log_recommendation(to_be_written):
-    print(to_be_written)
+    file = open('raw_data/rec_log.txt', w)
+    file.write(to_be_written)
+    file.close()
     return True
