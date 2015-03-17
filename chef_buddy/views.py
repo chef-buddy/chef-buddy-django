@@ -4,20 +4,11 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
-from chef_buddy_django.urls import RecipeSerializer
 
 
 _app_id = '844ee8f7'
 _app_key = '9b846490c7c34c4f33e70564831f232b'
 
-
-@api_view(['GET'])
-def get_random_recipe(request):
-    if request.method == 'GET':
-        random_idx = random.randint(0, Recipe.objects.count() - 1)
-        recipe = Recipe.objects.all()[random_idx]
-        serializer = RecipeSerializer(recipe)
-        return Response(serializer.data)
 
 @api_view(['GET'])
 def show_top_recipe(request):
