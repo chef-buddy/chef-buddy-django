@@ -42,7 +42,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'chef_buddy',
-    'rest_framework'
+    'rest_framework',
+    'csvimport.app.CSVImportConf',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -67,8 +68,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'chef_buddy',
-        'USER': 'zackjcooper',
-        'PASSWORD': 'password',
+        'USER': 'johnmitsch',
+        'PASSWORD': 'johnmitsch',
         'HOST': '127.0.0.1',
         'PORT': '5432',
         }
