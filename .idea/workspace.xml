@@ -2,10 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d2ded01f-9483-4302-a50e-80e0aa98377e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/chef_buddy_django/settings.py" afterPath="$PROJECT_DIR$/chef_buddy_django/settings.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/chef_buddy/views.py" afterPath="$PROJECT_DIR$/chef_buddy/views.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="chef-buddy-django.iws" />
@@ -60,8 +56,8 @@
       <file leaf-file-name="settings.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/chef_buddy_django/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.504717" vertical-offset="894" max-vertical-offset="1740">
-              <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.24528302" vertical-offset="894" max-vertical-offset="1740">
+              <caret line="70" column="33" selection-start-line="70" selection-start-column="33" selection-end-line="70" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -535,12 +531,20 @@
       <option name="number" value="Default" />
       <updated>1426527773658</updated>
     </task>
+    <task id="LOCAL-00001" summary="moved heroku database is setting.py">
+      <created>1426594724959</created>
+      <option name="number" value="00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1426594724959</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="403" y="23" width="1029" height="733" extended-state="0" />
     <editor active="true" />
     <layout>
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -578,6 +582,8 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
+    <MESSAGE value="moved heroku database is setting.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved heroku database is setting.py" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -764,8 +770,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/chef_buddy_django/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.504717" vertical-offset="894" max-vertical-offset="1740">
-          <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.24528302" vertical-offset="894" max-vertical-offset="1740">
+          <caret line="70" column="33" selection-start-line="70" selection-start-column="33" selection-end-line="70" selection-end-column="33" />
           <folding />
         </state>
       </provider>
