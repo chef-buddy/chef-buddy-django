@@ -62,4 +62,8 @@ target/
 # Temporary data
 .ipynb_checkpoints/
 
+# Django settings
+chef_buddy_django/settings.py
+
+
 
