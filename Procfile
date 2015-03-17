@@ -1,1 +1,1 @@
-web: gunicorn chef-buddy-django.wsgi --log-file -
+web: gunicorn chef_buddy_django.wsgi --log-file -
