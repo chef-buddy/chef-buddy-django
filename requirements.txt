@@ -1,10 +1,15 @@
+dj-database-url==0.3.0
 Django==1.7.6
 django-filter==0.9.2
+django-postgrespool==0.3.0
 django-tastypie==0.12.1
 djangorestframework==3.1.0
+gunicorn==19.3.0
 Markdown==2.6.1
 psycopg2==2.6
 python-dateutil==2.4.1
 python-mimeparse==0.1.4
 requests==2.6.0
 six==1.9.0
+SQLAlchemy==0.9.9
+whitenoise==1.0.6
