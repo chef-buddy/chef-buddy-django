@@ -10,15 +10,15 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import dj_database_url
+
+if not os.environ.get("HOME") == '/Users/johnmitsch':
+    import dj_database_url
+    DATABASES['default'] =  dj_database_url.config()
+    # Enable Connection Pooling
+    DATABASES['default']['ENGINE'] = 'django_postgrespool'
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
-DATABASES['default'] =  dj_database_url.config()
-
-# Enable Connection Pooling
-DATABASES['default']['ENGINE'] = 'django_postgrespool'
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
