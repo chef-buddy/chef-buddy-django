@@ -15,6 +15,6 @@ class UserFlavorCompound(models.Model):
     flavor_id = models.IntegerField()
 
 
-class RecipeFlavorCompound(models.Model):
-    user_id = models.IntegerField()
+class IngredientFlavorCompound(models.Model):
+    ingredient_id = models.IntegerField()
     flavor_id = models.IntegerField()

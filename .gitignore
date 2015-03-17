@@ -66,4 +66,4 @@ target/
 chef_buddy_django/settings.py
 
 
-
+.python-version

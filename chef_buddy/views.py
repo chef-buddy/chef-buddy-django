@@ -43,14 +43,6 @@ def get_recipes(amount):
     return all_recipes.json()
 
 
-
-
-
-
-
-
-
-
 def recipe_ingr_parse(recipe_list):
     return [(recipe['id'], ingredient) for recipe in recipe_list for ingredient in recipe['ingredients']]
 
