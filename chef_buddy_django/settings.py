@@ -67,18 +67,18 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'chef_buddy',
-        'USER': 'johnmitsch',
-        'PASSWORD': 'johnmitsch',
+        'USER': 'zackjcooper',
+        'PASSWORD': 'password',
         'HOST': '127.0.0.1',
         'PORT': '5432',
         }
 }
 
-if not os.environ.get("HOME") == '/Users/johnmitsch':
-    import dj_database_url
-    DATABASES['default'] =  dj_database_url.config()
-    # Enable Connection Pooling
-    DATABASES['default']['ENGINE'] = 'django_postgrespool'
+# if not os.environ.get("HOME") == '/Users/johnmitsch':
+#     import dj_database_url
+#     DATABASES['default'] =  dj_database_url.config()
+#     # Enable Connection Pooling
+#     DATABASES['default']['ENGINE'] = 'django_postgrespool'
 
 
 # Internationalization

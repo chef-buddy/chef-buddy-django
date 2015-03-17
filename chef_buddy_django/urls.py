@@ -13,6 +13,6 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 urlpatterns = patterns('chef_buddy.views',
     url(r'^api/v1/random_recipe/$', 'get_random_recipe'),
-    url(r'^api/v1/suggested_recipe/$', 'get_yummly_recipes'),
+    url(r'^api/v1/suggested_recipe/$', 'show_top_recipe'),
     url(r'^admin/', include(admin.site.urls))
 )
