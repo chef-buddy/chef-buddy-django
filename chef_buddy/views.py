@@ -125,6 +125,9 @@ def normalize_fc_count(match_count_dict, recipe_to_fc_count):
             normalized[recipe_id] = normalized[recipe_id] / recipe_to_fc_count
     return normalized
 
+def normalize_ingredient_appearance():
+    return normalized
+
 def log_recommendation(to_be_written):
     print(to_be_written)
     return True
