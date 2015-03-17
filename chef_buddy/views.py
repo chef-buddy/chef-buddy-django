@@ -72,7 +72,7 @@ def rec_engine(raw_recipes, user_fc_data):
 
     match_dict = user_to_recipe_counter(recipe_id_fc_list, user_fc_data)
     rec_id = max(match_dict, key=match_dict.get)
-    rec_id_fc_list = [fc_id for recipe_id, fc_id in recipe_id_fc_list if recipe_id == rec_id]
+    rec_id_fc_list = set([fc_id for recipe_id, fc_id in recipe_id_fc_list if recipe_id == rec_id])
     return recipe_id_to_object(rec_id, raw_recipes), rec_id_fc_list
 
 
@@ -102,12 +102,10 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     """recipe_id = id of the recipe needing to be housed
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
-    for fc_id in flavor_compounds:
-        if not Recipe.objects.filter(recipe_id=recipe_id):
+    if not Recipe.objects.filter(recipe_id=recipe_id):
+        for fc_id in flavor_compounds:
             recipe = Recipe(recipe_id=recipe_id, flavor_id=fc_id)
             recipe.save()
-            print('me thinks it worked')
-# This still needs help!
     return True
 
 def normalize_fc_count(match_count_dict, recipe_to_fc_count):
@@ -123,8 +121,9 @@ def normalize_ingredient_appearance():
     in recipes"""
     return normalized
 
-def log_recommendation(to_be_written):
+def log_recommendation(header,to_be_written):
     file = open('raw_data/rec_log.txt', w)
-    file.write(to_be_written)
+    with open('raw_data/rec_log.txt', 'a') as the_file:
+        the_file.write(header, '\n', to_be_written, '\n')
     file.close()
     return True
