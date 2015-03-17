@@ -1,5 +1,7 @@
 import random
 import requests
+import json
+from datetime import datetime
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -17,7 +19,11 @@ def show_top_recipe(request):
     user_data = find_user_fc_ids(1) #grab user food compounds
     rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, user_data) # pick top recipe for user
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
-    return Response(rec_object) #returns recipe object to requester
+    log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in raw_yum_recipes],
+                        'user to fc data':user_data,
+                        'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
+                        'food compounds of chosen recipe':rec_food_compounds})
+    return Response(rec_object)
 
 
 def get_yummly_recipes():
@@ -121,9 +127,16 @@ def normalize_ingredient_appearance():
     in recipes"""
     return normalized
 
-def log_recommendation(header,to_be_written):
-    file = open('raw_data/rec_log.txt', w)
-    with open('raw_data/rec_log.txt', 'a') as the_file:
-        the_file.write(header, '\n', to_be_written, '\n')
-    file.close()
+
+def log_recommendation(dict_of_logs):
+    with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
+        the_file.write(str(datetime.now()))
+        the_file.write('\n')
+
+        for header, log in dict_of_logs.items():
+            the_file.write(header)
+            the_file.write('\n\n')
+            the_file.write(str(log))
+            the_file.write('\n\n')
+        the_file.write('\n\n\n\n\n')
     return True
