@@ -3,7 +3,7 @@ import requests
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from chef_buddy.models import Recipe, UserFlavorCompound, RecipeFlavorCompound
+from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
 from chef_buddy_django.urls import RecipeSerializer
 #from chef_buddy.ingredient_fc_id import ingredient_to_fc_dict
 
@@ -24,8 +24,8 @@ def get_random_recipe(request):
 def show_top_recipe(request):
     """Manages actual top recipe request process"""
     raw_yum_recipes = get_yummly_recipes() #grab recipes
-    fake_user_data = find_user_fc_ids(3) #grab user food compounds
-    rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, fake_user_data) # pick top recipe for user
+    user_data = find_user_fc_ids(3) #grab user food compounds
+    rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, user_data) # pick top recipe for user
     yield Response(rec_object) #returns recipe object to requester
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
 
@@ -60,7 +60,9 @@ def recipes_to_fc_id(recipe_list):
     recipe_ingr_list = recipe_ingr_parse(recipe_list)
     recipe_fc_list = []
     for recipe_id, ingredient in recipe_ingr_list:
-        for fc_id in dbquery: # lookup ingredient in database and return list of fc matches
+        flavors = IngredientFlavorCompounds.objects.filter(ingredient_id=ingredient)
+#First one dummy
+        for fc_id in flavors:
             recipe_fc_list.append((recipe_id,fc_id))
 
     return recipe_fc_list
@@ -70,9 +72,9 @@ def find_user_fc_ids(user_id):
     """user_id = id of user in question
     Looks up all the user's flavor compounds and associated scores. Returns them in a tupled list.
     Also returns list of flavor compounds for that recipe"""
-    #flavor_compounds = UserFlavorCompound.objects.get(user_id=user_id)
-    # Turn them into dictionary {fc_id, score}
-    return {748: 1, 879: 4, 50: 2, 3: 8, 59: 1, 200: 2}
+# This is another one dummy
+    flavor_compounds = UserFlavorCompound.objects.filter(user_id=user_id)
+    return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
 
 
 def rec_engine(raw_recipes, user_fc_data):
@@ -106,18 +108,19 @@ def user_to_recipe_counter(recipe_id_fc_list, user_fc_data):
             match_dict[recipe_id] += user_fc_data[fc_id]
             recipe_fc_count[recipe_id] += 1
 
-    normalize_ingr_count(match_dict, recipe_fc_count)
+    normalize_fc_count(match_dict, recipe_fc_count)
     return match_dict
 
-def store_recipe_fc(recipe_id, flavor_compounds):
-    """recipe_id = id of the recipe needing to be housed
-    flavor_compounds = list of flavor compounds associated with recipe
-    This function is designed to take the above variables and store them in separate rows in the db"""
-    #for fc_id in flavor_compounds:
-        # Store as recipe_id, flavor_compound in db
-    return True
+# def store_recipe_fc(recipe_id, flavor_compounds):
+#     """recipe_id = id of the recipe needing to be housed
+#     flavor_compounds = list of flavor compounds associated with recipe
+#     This function is designed to take the above variables and store them in separate rows in the db"""
+#     for fc_id in flavor_compounds:
+#         if fc_id in database:
+# #This still needs help!
+#     return True
 
-def normalize_ingr_count(match_count_dict, recipe_to_fc_count_dict):
+def normalize_fc_count(match_count_dict, recipe_to_fc_count_dict):
     normalized = {}
     for recipe_id, score in match_count_dict.items():
         normalized[recipe_id] = score / recipe_to_fc_count_dict[recipe_id]
