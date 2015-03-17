@@ -81,3 +81,6 @@ chef_buddy_django/settings.py
 __pycache__/
 
 local_settings.py
+
+**/.idea/workspace.xml
+**/.idea/tasks.xml
