@@ -4,6 +4,22 @@
 __pycache__/
 *.py[cod]
 
+.python-version
+
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+
+local_settings.py
+
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+
+.idea/workspace.xml
+.idea/tasks.xml
+
 # C extensions
 *.so
 
@@ -64,20 +80,3 @@ target/
 
 ## Directory-based project format:
 .idea/
-
-# Django settings
-chef_buddy_django/settings.py
-
-
-.python-version
-
-### Django ###
-*.log
-*.pot
-*.pyc
-__pycache__/
-
-local_settings.py
-
-**/.idea/workspace.xml
-**/.idea/tasks.xml
