@@ -11,13 +11,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-if not os.environ.get("HOME") == '/Users/johnmitsch':
-    import dj_database_url
-    DATABASES['default'] =  dj_database_url.config()
-    # Enable Connection Pooling
-    DATABASES['default']['ENGINE'] = 'django_postgrespool'
-
-
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Simplified static file serving.
@@ -80,6 +73,13 @@ DATABASES = {
         'PORT': '5432',
         }
 }
+
+if not os.environ.get("HOME") == '/Users/johnmitsch':
+    import dj_database_url
+    DATABASES['default'] =  dj_database_url.config()
+    # Enable Connection Pooling
+    DATABASES['default']['ENGINE'] = 'django_postgrespool'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

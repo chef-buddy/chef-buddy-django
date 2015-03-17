@@ -13,6 +13,8 @@ _app_key = '9b846490c7c34c4f33e70564831f232b'
 pp = pprint.PrettyPrinter(indent=4)
 # Create your views here.
 
+
+
 @api_view(['GET'])
 def get_random_recipe(request):
     if request.method == 'GET':
