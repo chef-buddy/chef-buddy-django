@@ -1,5 +1,5 @@
 from django.contrib import admin
-from chef_buddy.models import Recipe, IngredientFlavorCompound
+from chef_buddy.models import Recipe, IngredientFlavorCompound, UserFlavorCompound
 
 class RecipeAdmin(admin.ModelAdmin):
     fields = ['recipe_title', 'recipe_image', 'recipe_link']
@@ -8,5 +8,9 @@ class RecipeAdmin(admin.ModelAdmin):
 class IngredientFlavorCompoundAdmin(admin.ModelAdmin):
     fields = ['ingredient_id', 'flavor_id']
 
+class UserFlavorCompoundAdmin(admin.ModelAdmin):
+    fields = ['user_id', 'flavor_id', 'score']
+
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(IngredientFlavorCompound, IngredientFlavorCompoundAdmin)
+admin.site.register(UserFlavorCompound, UserFlavorCompoundAdmin)
