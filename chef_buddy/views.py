@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from chef_buddy.models import Recipe
 from chef_buddy_django.urls import RecipeSerializer
-from chef_buddy.ingredient_fc_id import ingredient_to_fc_dict
+#from chef_buddy.ingredient_fc_id import ingredient_to_fc_dict
 
 
 _app_id = '844ee8f7'
