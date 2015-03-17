@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Recipe(models.Model):
-    recipe_id = models.IntegerField()
+    recipe_id = models.CharField(max_length=200)
     flavor_id = models.IntegerField()
 
     def __str__(self):
