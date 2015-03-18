@@ -59,13 +59,13 @@ def show_top_recipe(request):
 @api_view(['GET'])
 def random_recipe(request):
     recipe_list = get_yummly_recipes()
-    recipe = recipe_list[random.randint(1, 40)]
+    recipe = recipe_list[random.randint(1, 10)]
     recipe = large_image(recipe)
     return Response(recipe)
 
 
 def get_yummly_recipes():
-    request_amount = 40 #  change for amount of recipes returned from yummly
+    request_amount = 10 # Change for amount of recipes returned from yummly
     recipes = get_recipes(request_amount)
     recipe_list = recipes['matches']
     return recipe_list
@@ -95,23 +95,27 @@ def get_recipes(amount):
 def recipe_ingr_parse(recipe_list):
     """recipe_list = raw list of recipes directly from yummly
     takes in a list of recipes and returns a tupled list of recipe_id, ingredient"""
-    return [(recipe['id'], ingredient) for recipe in recipe_list for ingredient in recipe['ingredients']]
+    recipe_ingredient_dict = {}
+    for recipe in recipe_list:
+        recipe_ingredient_dict[recipe['id']]= [ingredient for ingredient in recipe['ingredients']]
+    return recipe_ingredient_dict
 
 
 def recipes_to_fc_id(recipe_list):
     """ recipe_list = Raw Recipe input from yummly
     Takes in a list of recipes and returns a tupled list of recipe_id to flavor compound id"""
-    recipe_ingr_list = recipe_ingr_parse(recipe_list)
+    recipe_ingr_dict = recipe_ingr_parse(recipe_list)
+    recipe_fc_list = []
 
     start = time.time()
-    recipe_fc_list = []
-    for recipe_id, ingredient in recipe_ingr_list:
-        flavors = IngredientFlavorCompound.objects.filter(ingredient_id=ingredient)
 
-        recipe_fc_list.extend([(recipe_id,fc_id.flavor_id) for fc_id in flavors])
+    for recipe, ingredients in recipe_ingr_dict.items():
+        flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients).values_list('flavor_id', flat=True)
+        recipe_fc_list.extend([(recipe, fc) for fc in flavor_compounds])
 
     end = time.time()
     print('recipe lookup stuff: ', (end - start))
+
     return recipe_fc_list
 
 
