@@ -79,7 +79,10 @@ def rec_engine(raw_recipes, user_fc_data):
     match_dict = user_to_recipe_counter(recipe_id_fc_list, user_fc_data)
     rec_id = max(match_dict, key=match_dict.get)
     rec_id_fc_list = [fc_id for recipe_id, fc_id in recipe_id_fc_list if recipe_id == rec_id]
-    return recipe_id_to_object(rec_id, raw_recipes), rec_id_fc_list
+    rec_score = score_recommendation(rec_id_fc_list, user_fc_data)
+    rec_object = recipe_id_to_object(rec_id, raw_recipes)
+    rec_object['score'] = rec_score
+    return rec_object, rec_id_fc_list
 
 
 def recipe_id_to_object(recipe_id, recipe_list):
@@ -140,3 +143,12 @@ def log_recommendation(dict_of_logs):
             the_file.write('\n\n')
         the_file.write('\n\n\n\n\n')
     return True
+
+def score_recommendation(rec_id_fc_list, user_fc_data):
+    """This function takes in the recommended recipe and it's food compounds, and the total food
+    compounds the user has. It will remove any negative user to food compound relationships, then produce
+    a score of how many food compounds of the chosen recipe were already chosen by the user."""
+
+    hit_list = [user_fc for user_fc in user_fc_data.keys()
+                if user_fc in rec_id_fc_list and user_fc_data[user_fc] > 0]
+    return len(hit_list) / len(set(rec_id_fc_list)) * 100
