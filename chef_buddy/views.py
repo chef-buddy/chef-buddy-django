@@ -28,6 +28,7 @@ def show_top_recipe(request):
         liked = post.get('liked', 0)
         recipe = post.get('recipe', '')
         store_user_fc(user, recipe, liked)
+        user_data = find_user_fc_ids(user)
     recipes = get_yummly_recipes() #grab recipes
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
