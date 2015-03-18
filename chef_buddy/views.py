@@ -16,7 +16,6 @@ _app_id = '844ee8f7'
 _app_key = '9b846490c7c34c4f33e70564831f232b'
 
 
-
 # @api_view(['GET', 'POST'])
 # @method_decorator(csrf_exempt)
 # def show_top_recipe(request):
@@ -54,6 +53,7 @@ def show_top_recipe(request):
         store_user_fc(user, recipe_id, liked)
 
     recipes = get_yummly_recipes() #grab recipes
+
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
@@ -61,13 +61,30 @@ def show_top_recipe(request):
                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
                         'food compounds of chosen recipe':rec_food_compounds})
     recipe = large_image(rec_object)
-    return Response(rec_object)
+    return Response(recipe)
+
+# @api_view(['GET'])
+# def show_top_recipe(request):
+#     liked = request.GET.get('liked', 0)
+#     user = request.GET.get('user', 0)
+#     recipes = get_yummly_recipes() #grab recipes
+#     user_data = find_user_fc_ids(user)
+#     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
+#     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
+#     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
+#                         'user to fc data':user_data,
+#                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
+#                         'food compounds of chosen recipe':rec_food_compounds})
+#     return Response(rec_object)
+
 
 @api_view(['GET'])
 def random_recipe(request):
     recipe_list = get_yummly_recipes()
     recipe = recipe_list[random.randint(1, 40)]
+    recipe = large_image(recipe)
     return Response(recipe)
+
 
 def get_yummly_recipes():
     request_amount = 40 #  change for amount of recipes returned from yummly
@@ -75,6 +92,16 @@ def get_yummly_recipes():
     recipe_list = recipes['matches']
     return recipe_list
 
+
+def large_image(json):
+    """
+    Takes the image from the Yummly api and returns a larger image by changing the URL.
+    :return: json object
+    """
+    image = json["imageUrlsBySize"]['90']
+    image = image.replace('=s90-c', '=s600')
+    json['largeImage'] = image
+    return json
 
 def get_recipes(amount):
     random_start = random.randint(1, (321961 - amount))
