@@ -15,40 +15,41 @@ _app_key = '9b846490c7c34c4f33e70564831f232b'
 
 
 
-# @api_view(['GET', 'POST'])
-# @method_decorator(csrf_exempt)
-# def show_top_recipe(request):
-#     """Manages actual top recipe request process"""
-#     raw_yum_recipes = get_yummly_recipes() #grab recipes
-#     if request.method == "GET":
-#         user_data = find_user_fc_ids(1) #grab user food compounds
-#     elif request.method == "POST":
-#         user = request.POST.get('user_id', 0)
-#         print(user)
-#         liked = request.POST.get('liked', 0)
-#         print(liked)
-#         user_data = find_user_fc_ids(user)
-#     rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, user_data)
-#     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
-#     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in raw_yum_recipes],
-#                         'user to fc data':user_data,
-#                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
-#                         'food compounds of chosen recipe':rec_food_compounds})
-#     return Response(rec_object)
-
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
+@method_decorator(csrf_exempt)
 def show_top_recipe(request):
-    liked = request.GET.get('liked', 0)
-    user = request.GET.get('user', 0)
-    recipes = get_yummly_recipes() #grab recipes
-    user_data = find_user_fc_ids(user)
-    rec_object, rec_food_compounds = rec_engine(recipes, user_data)
+    """Manages actual top recipe request process"""
+    raw_yum_recipes = get_yummly_recipes() #grab recipes
+    if request.method == "GET":
+        user_data = find_user_fc_ids(1) #grab user food compounds
+    elif request.method == "POST":
+        post = request.POST.copy()
+        user = post['user_id']
+        print(user)
+        liked = post['liked']
+        print(liked)
+        user_data = find_user_fc_ids(user)
+    rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, user_data)
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
-    log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
+    log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in raw_yum_recipes],
                         'user to fc data':user_data,
                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
                         'food compounds of chosen recipe':rec_food_compounds})
     return Response(rec_object)
+
+# @api_view(['GET'])
+# def show_top_recipe(request):
+#     liked = request.GET.get('liked', 0)
+#     user = request.GET.get('user', 0)
+#     recipes = get_yummly_recipes() #grab recipes
+#     user_data = find_user_fc_ids(user)
+#     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
+#     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
+#     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
+#                         'user to fc data':user_data,
+#                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
+#                         'food compounds of chosen recipe':rec_food_compounds})
+#     return Response(rec_object)
 
 @api_view(['GET'])
 def random_recipe(request):
