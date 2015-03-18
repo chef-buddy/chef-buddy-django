@@ -6,18 +6,27 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound, Recipe
+from django.views.decorators.csrf import csrf_exempt
 
 
 _app_id = '844ee8f7'
 _app_key = '9b846490c7c34c4f33e70564831f232b'
 
 
-@api_view(['GET'])
+@csrf_exempt
+@api_view(['GET', 'POST'])
 def show_top_recipe(request):
     """Manages actual top recipe request process"""
     raw_yum_recipes = get_yummly_recipes() #grab recipes
-    user_data = find_user_fc_ids(1) #grab user food compounds
-    rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, user_data) # pick top recipe for user
+    if request.method == "GET":
+        user_data = find_user_fc_ids(1) #grab user food compounds
+    elif request.method == "POST":
+        print('post')
+        user = request.POST.get('user_id', 1)
+        print(user)
+        user_data = find_user_fc_ids(user)
+        print(user_data)
+    rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, user_data)
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in raw_yum_recipes],
                         'user to fc data':user_data,
@@ -25,6 +34,11 @@ def show_top_recipe(request):
                         'food compounds of chosen recipe':rec_food_compounds})
     return Response(rec_object)
 
+@api_view(['GET'])
+def random_recipe(request):
+    recipe_list = get_yummly_recipes()
+    recipe = recipe_list[random.randint(1, 40)]
+    return Response(recipe)
 
 def get_yummly_recipes():
     request_amount = 40 #  change for amount of recipes returned from yummly
