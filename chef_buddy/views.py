@@ -24,10 +24,9 @@ def show_top_recipe(request):
         user_data = find_user_fc_ids(1)
     elif request.method == "POST":
         post = request.POST.copy()
-        user = post['user']
-        liked = post['liked']
-        recipe = post['recipe']
-        user_data = find_user_fc_ids(user)
+        user = post.get('user', 0)
+        liked = post.get('liked', 0)
+        recipe = post.get('recipe', '')
         store_user_fc(user, recipe, liked)
     recipes = get_yummly_recipes() #grab recipes
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
