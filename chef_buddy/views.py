@@ -43,14 +43,14 @@ _app_key = '9b846490c7c34c4f33e70564831f232b'
 def show_top_recipe(request):
     """Manages actual top recipe request process"""
     if request.method == "GET":
-        user_data = find_user_fc_ids(1) #grab user food compounds
+        user_data = find_user_fc_ids(1)
     elif request.method == "POST":
         post = request.POST.copy()
-        user = post['user_id']
+        user = post['user']
         liked = post['liked']
         recipe = post['recipe']
         user_data = find_user_fc_ids(user)
-        store_user_fc(user, recipe_id, liked)
+        store_user_fc(user, recipe, liked)
 
     recipes = get_yummly_recipes() #grab recipes
 
