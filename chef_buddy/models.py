@@ -15,7 +15,7 @@ class UserFlavorCompound(models.Model):
     score = models.IntegerField()
 
     def __str__(self):
-        return self.user_id
+        return str(self.user_id)
 
 
 class IngredientFlavorCompound(models.Model):

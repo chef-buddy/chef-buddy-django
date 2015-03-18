@@ -15,28 +15,6 @@ _app_id = '844ee8f7'
 _app_key = '9b846490c7c34c4f33e70564831f232b'
 
 
-# @api_view(['GET', 'POST'])
-# @method_decorator(csrf_exempt)
-# def show_top_recipe(request):
-#     """Manages actual top recipe request process"""
-#     raw_yum_recipes = get_yummly_recipes() #grab recipes
-#     if request.method == "GET":
-#         user_data = find_user_fc_ids(1) #grab user food compounds
-#     elif request.method == "POST":
-#         user = request.POST.get('user_id', 0)
-#         print(user)
-#         liked = request.POST.get('liked', 0)
-#         print(liked)
-#         user_data = find_user_fc_ids(user)
-#     rec_object, rec_food_compounds = rec_engine(raw_yum_recipes, user_data)
-#     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
-#     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in raw_yum_recipes],
-#                         'user to fc data':user_data,
-#                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
-#                         'food compounds of chosen recipe':rec_food_compounds})
-#     return Response(rec_object)
-
-
 @api_view(['GET', 'POST'])
 @method_decorator(csrf_exempt)
 def show_top_recipe(request):
@@ -51,9 +29,7 @@ def show_top_recipe(request):
         recipe = post['recipe']
         user_data = find_user_fc_ids(user)
         store_user_fc(user, recipe, liked)
-
     recipes = get_yummly_recipes() #grab recipes
-
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
@@ -138,13 +114,21 @@ def recipes_to_fc_id(recipe_list):
     print('recipe lookup stuff: ', (end - start))
     return recipe_fc_list
 
+
 def store_user_fc(user_id, recipe_id, taste):
-    flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
-    if taste not in [-1, 1]:
-        return True
-    user_fc = [UserFlavorCompound(user_id=user_id,flavor_id=fc.flavor_id,
-                                  score=taste) for fc in flavor_compounds]
-    UserFlavorCompound.objects.bulk_create(user_fc)
+
+    if taste in ["-1", "1"]:
+        flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
+        
+        for fc in flavor_compounds:
+            exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id=fc.flavor_id)
+            if exists:
+                exists.flavor_id += taste
+                exists.save()
+            else:
+                user_fc = UserFlavorCompound(user_id=user_id,flavor_id=fc.flavor_id,
+                                             score=taste)
+        UserFlavorCompound.objects.bulk_create(user_fc)
     return True
 
 
