@@ -9,7 +9,6 @@ from rest_framework.decorators import api_view
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound, Recipe
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.db import transaction
 
 
 _app_id = '844ee8f7'
@@ -41,6 +40,7 @@ _app_key = '9b846490c7c34c4f33e70564831f232b'
 @api_view(['GET', 'POST'])
 @method_decorator(csrf_exempt)
 def show_top_recipe(request):
+    start = time.time()
     """Manages actual top recipe request process"""
     if request.method == "GET":
         user_data = find_user_fc_ids(1)
@@ -61,6 +61,8 @@ def show_top_recipe(request):
                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
                         'food compounds of chosen recipe':rec_food_compounds})
     recipe = large_image(rec_object)
+    end = time.time()
+    print('total time: ', (end - start))
     return Response(recipe)
 
 # @api_view(['GET'])
@@ -140,12 +142,9 @@ def store_user_fc(user_id, recipe_id, taste):
     flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
     if taste not in [-1, 1]:
         return True
-    with transaction.commit_on_success():
-        for fc in flavor_compounds:
-            user_fc = UserFlavorCompound(user_id=user_id,
-                                        flavor_id=fc.flavor_id,
-                                        score=taste)
-            user_fc.save()
+    user_fc = [UserFlavorCompound(user_id=user_id,flavor_id=fc.flavor_id,
+                                  score=taste) for fc in flavor_compounds]
+    UserFlavorCompound.objects.bulk_create(user_fc)
     return True
 
 
@@ -202,14 +201,8 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     This function is designed to take the above variables and store them in separate rows in the db"""
 
     if not Recipe.objects.filter(recipe_id=recipe_id):
-        count = 0
-        for fc_id in flavor_compounds:
-            start = time.time()
-            recipe = Recipe(recipe_id=recipe_id, flavor_id=fc_id)
-            recipe.save()
-            end = time.time()
-            print('storing recipe food compounds #{}:  {}'.format(count, (end - start)))
-            count += 1
+        recipe_list = [Recipe(recipe_id=recipe_id, flavor_id=fc_id) for fc_id in flavor_compounds]
+        Recipe.objects.bulk_create(recipe_list)
     return True
 
 def normalize_fc_count(match_count_dict, recipe_to_fc_count):
