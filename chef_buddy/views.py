@@ -119,7 +119,6 @@ def store_user_fc(user_id, recipe_id, taste):
 
     if taste in ["-1", "1"]:
         flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
-        
         for fc in flavor_compounds:
             exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id=fc.flavor_id)
             if exists:
