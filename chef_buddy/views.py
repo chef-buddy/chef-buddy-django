@@ -38,10 +38,13 @@ _app_key = '9b846490c7c34c4f33e70564831f232b'
 
 @api_view(['GET'])
 def show_top_recipe(request):
-    liked = request.GET.get('liked', 0)
-    user = request.GET.get('user', 0)
+    user_id = request.GET.get('user', 0)
+    taste = request.GET.get('liked')
+    recipe_id = request.GET.get('recipe')
+
+    store_user_fc(user_id, recipe_id, taste)
     recipes = get_yummly_recipes() #grab recipes
-    user_data = find_user_fc_ids(user)
+    user_data = find_user_fc_ids(user_id)
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
@@ -91,6 +94,16 @@ def recipes_to_fc_id(recipe_list):
             recipe_fc_list.append((recipe_id,fc_id.flavor_id))
     return recipe_fc_list
 
+def store_user_fc(user_id, recipe_id, taste):
+    flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
+    if taste not in [-1, 1]
+        return True
+    for fc in flavor_compounds:
+        user_fc = UserFlavorCompound(user_id=user_id,
+                                    flavor_id=fc.flavor_id,
+                                    score=taste)
+        user_fc.save()
+    return True
 
 def find_user_fc_ids(user_id=1):
     """user_id = id of user in question
@@ -154,12 +167,6 @@ def normalize_fc_count(match_count_dict, recipe_to_fc_count):
         if normalized[recipe_id] > 0:
             normalized[recipe_id] = normalized[recipe_id] / recipe_to_fc_count
     return normalized
-
-def normalize_ingredient_appearance():
-    """Will pull from database table housing the ingredient to the ratio of how often it appears
-    in recipes"""
-    return normalized
-
 
 def log_recommendation(dict_of_logs):
     with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
