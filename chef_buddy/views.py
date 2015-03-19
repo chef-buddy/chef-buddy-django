@@ -21,7 +21,7 @@ _app_key = '9b846490c7c34c4f33e70564831f232b'
 def show_top_recipe(request):
     """Manages actual top recipe request process"""
     start = time.time()
-    elif request.method == "POST":
+    if request.method == "POST":
         post = request.POST.copy()
         user = post.get('user', 0)
         liked = post.get('liked', 0)
