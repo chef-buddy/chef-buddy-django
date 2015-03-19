@@ -19,10 +19,8 @@ _app_key = '9b846490c7c34c4f33e70564831f232b'
 @api_view(['GET', 'POST'])
 @method_decorator(csrf_exempt)
 def show_top_recipe(request):
-    start = time.time()
     """Manages actual top recipe request process"""
-    if request.method == "GET":
-        user_data = find_user_fc_ids(1)
+    start = time.time()
     elif request.method == "POST":
         post = request.POST.copy()
         user = post.get('user', 0)
