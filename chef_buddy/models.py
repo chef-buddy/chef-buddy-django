@@ -14,6 +14,9 @@ class UserFlavorCompound(models.Model):
     flavor_id = models.IntegerField()
     score = models.IntegerField()
 
+    class Meta:
+        unique_together = ("user_id", "flavor_id")
+
     def __str__(self):
         return str(self.user_id)
 
