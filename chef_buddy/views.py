@@ -81,6 +81,7 @@ def large_image(json):
     json['largeImage'] = image
     return json
 
+
 def get_recipes(amount):
     random_start = random.randint(1, (321961 - amount))
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes',
@@ -200,6 +201,7 @@ def normalize_fc_count(match_count_dict, recipe_to_fc_count):
             normalized[recipe_id] = normalized[recipe_id] / recipe_to_fc_count
     return normalized
 
+
 def log_recommendation(dict_of_logs):
     with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
         the_file.write(str(datetime.now()))
@@ -212,6 +214,7 @@ def log_recommendation(dict_of_logs):
             the_file.write('\n\n')
         the_file.write('\n\n\n\n\n')
     return True
+
 
 def score_recommendation(rec_id_fc_list, user_fc_data):
     """This function takes in the recommended recipe and it's food compounds, and the total food
