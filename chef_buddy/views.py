@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound, Recipe
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.db.models import F
 
 
 _app_id = '844ee8f7'
@@ -125,32 +126,34 @@ def check_for_recipe(recipe_id):
     """
 
 def store_user_fc(user_id, recipe_id, taste):
-    if taste in ["-1", "1"]:
-        create_list = []
-        flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
-        print(flavor_compounds)
-        if flavor_compounds != []:
-            for fc in flavor_compounds:
-                exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id=fc.flavor_id)
-                if exists:
-                    exists = exists[0]
-                    exists.score += int(taste)
-                    exists.save()
-                else:
-                    user_fc = UserFlavorCompound(user_id=user_id,
-                                                 flavor_id=fc.flavor_id,
-                                                 score=taste)
-                    create_list.append(user_fc)
-            UserFlavorCompound.objects.bulk_create(create_list)
+    user_id, taste = int(user_id), int(taste)
+    start = time.time()
+    if taste in [-1, 1]:
+        flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id).values_list('flavor_id', flat=True)
+        exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=flavor_compounds)\
+                                           .values_list('flavor_id', flat=True)
+        UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=exists).update(score=F('score') + taste)
+        new_fc = list(set(flavor_compounds) - set(exists))
+        print('5')
+        UserFlavorCompound.objects.bulk_create([UserFlavorCompound(user_id=user_id,flavor_id=flavor,
+                                                                   score=taste) for flavor in new_fc])
+        print('all compounds ', flavor_compounds)
+    end = time.time()
+    print('store_user_fc', (end - start))
     return True
 
 
 def find_user_fc_ids(user_id=1):
     """user_id = id of user in question
     Looks up all the user's flavor compounds and associated scores. Returns them in a tupled list.
-    Also returns list of flavor compounds for that recipe"""
-    flavor_compounds = UserFlavorCompound.objects.filter(user_id=user_id)
-    return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
+    Also returns list of flavor compounds for that recipe. If the user doesn't have any flavor
+    compounds, then we'll return a random recipe (one that is derived from user 1's flavor compounds)"""
+    try:
+        flavor_compounds = UserFlavorCompound.objects.filter(user_id=user_id)
+        return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
+    except UserFlavorCompound.DoesNotExist:
+        flavor_compounds = UserFlavorCompound.objects.filter(user_id=1)
+        return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
 
 
 def rec_engine(raw_recipes, user_fc_data):
