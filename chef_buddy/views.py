@@ -126,21 +126,26 @@ def check_for_recipe(recipe_id):
 
 def store_user_fc(user_id, recipe_id, taste):
     if taste in ["-1", "1"]:
-        flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)  # this keeps returning an empty list
+        create_list = []
+        flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
         print(flavor_compounds)
         if flavor_compounds != []:
             for fc in flavor_compounds:
-                print(fc)
+                print(fc.flavor_id)
                 exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id=fc.flavor_id)
+                print(exists)
                 if exists:
-                    exists.flavor_id += taste
+                    print('im breaking it')
+                    exists = exists[0]
+                    print('score ', exists.score)
+                    exists.score += int(taste)
                     exists.save()
                 else:
-                    print('userfc1')
                     user_fc = UserFlavorCompound(user_id=user_id,
                                                  flavor_id=fc.flavor_id,
                                                  score=taste)
-                UserFlavorCompound.objects.bulk_create(user_fc)
+                    create_list.append(user_fc)
+            UserFlavorCompound.objects.bulk_create(create_list)
     return True
 
 
