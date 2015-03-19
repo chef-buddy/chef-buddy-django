@@ -125,6 +125,7 @@ def check_for_recipe(recipe_id):
     """
 
 def store_user_fc(user_id, recipe_id, taste):
+    start = time.time()
     if taste in ["-1", "1"]:
         create_list = []
         flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id)
@@ -141,6 +142,8 @@ def store_user_fc(user_id, recipe_id, taste):
                                                  score=taste)
                     create_list.append(user_fc)
             UserFlavorCompound.objects.bulk_create(create_list)
+    end = time.time()
+    print('store_user_fc', (end - start))
     return True
 
 
