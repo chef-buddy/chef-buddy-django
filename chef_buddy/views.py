@@ -2,6 +2,7 @@ import random
 import requests
 import json
 import time
+import numpy as np
 from datetime import datetime
 from django.shortcuts import render
 from rest_framework.response import Response
@@ -38,36 +39,50 @@ def show_top_recipe(request):
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 0), post.get('liked', 0), post.get('recipe', '')
 
-    pool = Pool()
-    result1 = pool.apply_async(get_yummly_recipes, [])
-    result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
-    recipes = result1.get(timeout=10)
+    store_user_recipe(user, recipe, liked)
+    recipes = get_yummly_recipes()
+    likes_dislikes, fc_list_lists, recipe_fc_dict = engine_prep(user_id)
+    #Change john_engine to your function below
+    rec_list = john_engine(likes_dislikes, fc_list_lists, recipe_fc_dict)
+    rec_answer = post_engine_prep(rec_list, recipes, recipe_fc_dict, amount=1)
+    return Response(rec_answer)
 
-    user_data = find_user_fc_ids(user)
-    rec_object, rec_food_compounds = rec_engine(recipes, user_data)
-    recipe = large_image(rec_object)
-    store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
 
-    log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
-                        'user to fc data':user_data,
-                        'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
-                        'food compounds of chosen recipe':rec_food_compounds})
+def engine_prep(user, raw_recipes):
+    """
+    Breaks down incoming yummly recipes into dict: {recipe_id:[flavor compounds]}
+    Creates list of likes: [1,0,0,1,0,1]
+    Creates list of flavor compound lists: [[flavorcompounds], [flavorcompounds]]
+    """
+    classifiers = classifier_creation(user)
+    likes_dislikes = Recipe.objects.filter(recipe_id__in=recipes).values_list('liked')
+    recipe_fc_dict = recipes_to_fc_id(raw_recipes)
+    return likes_dislikes, classifiers, recipe_fc_dict
 
-    return Response(recipe)
 
-# @api_view(['GET'])
-# def show_top_recipe(request):
-#     liked = request.GET.get('liked', 0)
-#     user = request.GET.get('user', 0)
-#     recipes = get_yummly_recipes() #grab recipes
-#     user_data = find_user_fc_ids(user)
-#     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
-#     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
-#     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
-#                         'user to fc data':user_data,
-#                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
-#                         'food compounds of chosen recipe':rec_food_compounds})
-#     return Response(rec_object)
+def classifier_creation(user):
+    recipes = UserFlavorCompound.objects.filter(user_id=user_id).values_list('recipe_id', flat=True)
+    classifiers = np.zeros((1107,), dtype=numpy.int)
+    for recipe in recipes:
+        bare_list = np.zeros((1107,), dtype=numpy.int)
+        for flavor_id in Recipe.objects.filter(recipe_id=recipe).values_list('flavor_id'):
+            bare_list[flavor_id] = 1
+        classifiers.concatenate((classifiers, bare_list))
+    return classifiers
+
+
+def post_engine_prep(rec_tuple_list, recipe_list, recipe_fc_dict, amount=1):
+
+    rec_tuple_list = rec_tuple_list[0:amount]
+    [store_recipe_fc(rec_id, recipe_fc_dict[rec_id]) for rec_id, score in rec_obj_list]
+    rec_obj_list = [(recipe_id_to_object(rec_id, recipe_list),rec_score) for rec_id, rec_score in rec_tuple_list]
+
+    # log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
+    #                     'user to fc data':user_data,
+    #                     'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
+    #                     'food compounds of chosen recipe':rec_food_compounds})
+    print(sorted(rec_obj_list, key=lambda x: x[1]))
+    return sorted(rec_obj_list, key=lambda x: x[1])
 
 
 @api_view(['GET'])
@@ -103,7 +118,7 @@ def large_image(json):
 
 def recipe_ingr_parse(recipe_list):
     """recipe_list = raw list of recipes directly from yummly
-    takes in a list of recipes and returns a tupled list of recipe_id, ingredient"""
+    takes in a list of recipes and returns a dict of recipe_id, [ingredients]"""
     recipe_ingredient_dict = {}
     for recipe in recipe_list:
         recipe_ingredient_dict[recipe['id']]= [ingredient for ingredient in recipe['ingredients']]
@@ -112,37 +127,30 @@ def recipe_ingr_parse(recipe_list):
 
 def recipes_to_fc_id(recipe_list):
     """ recipe_list = Raw Recipe input from yummly
-    Takes in a list of recipes and returns a tupled list of recipe_id to flavor compound id"""
+    Takes in a dict of recipes and returns a dict of recipe_id to [flavor compound ids]"""
     recipe_ingr_dict = recipe_ingr_parse(recipe_list)
-    recipe_fc_list = []
+    recipe_fc_dict = {}
     for recipe, ingredients in recipe_ingr_dict.items():
-        flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients).values_list('flavor_id', flat=True)
-        recipe_fc_list.extend([(recipe, fc) for fc in flavor_compounds])
+        recipe_fc_dict{recipe} = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
+                                                                 .values_list('flavor_id', flat=True)
+    return recipe_fc_dict
 
-    return recipe_fc_list
 
-def check_for_recipe(recipe_id):
-    """
-    checks to see if recipe is stored in local database
-    :param recipe_id:
-    :return:
-    """
-
-def store_user_fc(user_id, recipe_id, taste):
-    """Takes a user_id, recipe_id, and taste (should be a 1 or -1). It will lookup the recipe_id in the
-    database to find associated food compounds. It will then lookup to see if the user has already liked
-    disliked those flavor compounds. If they've liked them before, then it will update the score. If not,
-    It will create a new row for that food compound."""
+def store_user_recipe(user_id, recipe_id, liked):
+    """Takes a user_id, recipe_id, and liked (should be a 1 or -1). It will update the user to recipe
+    table given the inputs."""
     user_id, taste = int(user_id), int(taste)
     if taste in [-1, 1]:
-        flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id).values_list('flavor_id', flat=True)
-        exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=flavor_compounds)\
-                                           .values_list('flavor_id', flat=True)
-        UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=exists).update(score=F('score') + taste)
-        newer_fc = [num for num in set(flavor_compounds) if num not in set(exists)]
-        UserFlavorCompound.objects.bulk_create([UserFlavorCompound(user_id=user_id,flavor_id=flavor,
-                                                                   score=taste) for flavor in newer_fc])
-    return True
+        try:
+            Recipe.objects.filter(recipe_id=recipe_id)
+            user_recipe = UserFlavorCompound(user_id=user_id, recipe=recipe_id, liked=liked)
+            user_recipe.save()
+            return True
+        except Recipe.DoesNotExist:
+            return 'Recipe does not exist'
+    else:
+        return False
+
 
 def find_user_fc_ids(user_id=1):
     """user_id = id of user in question
@@ -156,39 +164,14 @@ def find_user_fc_ids(user_id=1):
         flavor_compounds = UserFlavorCompound.objects.filter(user_id=1)
         return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
 
-@speed_test
-def rec_engine(raw_recipes, user_fc_data):
-    """raw_recipes = list of raw recipes from yummly
-    user_fc_data = user to food compound dict
-    This function is the engine for picking a recipe given a user's food compounds. Returns 1 recipe object."""
-    recipe_id_fc_list = recipes_to_fc_id(raw_recipes)
-    match_dict = user_to_recipe_counter(recipe_id_fc_list, user_fc_data)
-    rec_id = max(match_dict, key=match_dict.get)
-    rec_id_fc_list = [fc_id for recipe_id, fc_id in recipe_id_fc_list if recipe_id == rec_id]
-    rec_score = score_recommendation(rec_id_fc_list, user_fc_data)
-    rec_object = recipe_id_to_object(rec_id, raw_recipes)
-    rec_object['recommendation_score'] = rec_score
-    return rec_object, rec_id_fc_list
 
 def recipe_id_to_object(recipe_id, recipe_list):
-    """Looks recipe_id in recipe_list and returns recipe object"""
+    """Looks recipe_id in recipe_list and returns recipe object with fixed image size"""
     for recipe in recipe_list:
         if recipe['id'] == recipe_id:
-            return recipe
+            rec_object = large_image(recipe)
+            return rec_object
 
-
-def user_to_recipe_counter(recipe_id_fc_list, user_fc_data):
-    """Takes in user's flavor compounds and recipe flavor compounds to produce a dict of how
-    many times the flavor compounds of the user appear in each recipe for the user. Each time
-    a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
-    match_dict = {recipe_id:0 for recipe_id, fc_id in recipe_id_fc_list}
-    recipe_fc_count = 0
-    for recipe_id, fc_id in recipe_id_fc_list:
-        if fc_id in user_fc_data.keys():
-            match_dict[recipe_id] += user_fc_data[fc_id]
-            recipe_fc_count += 1
-    normalize_fc_count(match_dict, recipe_fc_count)
-    return match_dict
 
 def store_recipe_fc(recipe_id, flavor_compounds):
     """recipe_id = id of the recipe needing to be housed
@@ -199,13 +182,6 @@ def store_recipe_fc(recipe_id, flavor_compounds):
         Recipe.objects.bulk_create(recipe_list)
     return True
 
-def normalize_fc_count(match_count_dict, recipe_to_fc_count):
-    """Normalizes for a recipe simply having a lot of food compounds"""
-    normalized = match_count_dict.copy()
-    for recipe_id, score in match_count_dict.items():
-        if normalized[recipe_id] > 0:
-            normalized[recipe_id] = normalized[recipe_id] / recipe_to_fc_count
-    return normalized
 
 def log_recommendation(dict_of_logs):
     with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
@@ -221,11 +197,10 @@ def log_recommendation(dict_of_logs):
     return True
 
 
-def score_recommendation(rec_id_fc_list, user_fc_data):
-    """This function takes in the recommended recipe and it's food compounds, and the total food
-    compounds the user has. It will remove any negative user to food compound relationships, then produce
-    a score of how many food compounds of the chosen recipe were already chosen by the user."""
-
-    hit_list = [user_fc for user_fc in user_fc_data.keys()
-                if user_fc in rec_id_fc_list and user_fc_data[user_fc] > 0]
-    return len(hit_list) / len(set(rec_id_fc_list)) * 100
+# def normalize_fc_count(match_count_dict, recipe_to_fc_count):
+#     """Normalizes for a recipe simply having a lot of food compounds"""
+#     normalized = match_count_dict.copy()
+#     for recipe_id, score in match_count_dict.items():
+#         if normalized[recipe_id] > 0:
+#             normalized[recipe_id] = normalized[recipe_id] / recipe_to_fc_count
+#     return normalized
