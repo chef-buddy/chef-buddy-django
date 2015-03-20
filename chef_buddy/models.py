@@ -11,7 +11,7 @@ class Recipe(models.Model):
 
 class UserFlavorCompound(models.Model):
     user_id = models.IntegerField()
-    flavor_id = models.IntegerField()
+    flavor_id = models.IntegerField(null=True)
     score = models.IntegerField()
 
     class Meta:
