@@ -17,3 +17,5 @@ six==1.9.0
 SQLAlchemy==0.9.9
 whitenoise==1.0.6
 numpy==1.9.1
+scikit-learn==0.15.2
+scipy==0.15.1
