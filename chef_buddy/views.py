@@ -95,7 +95,7 @@ def post_engine_prep(rec_tuple_list, recipe_list, recipe_fc_dict, amount=1):
     #                     'user to fc data':user_data,
     #                     'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
     #                     'food compounds of chosen recipe':rec_food_compounds})
-    print(sorted(rec_obj_list, key=lambda x: x[1]), reverse=True)
+    print(sorted(rec_obj_list, key=lambda x: x[1], reverse=True))
     return sorted(rec_obj_list, key=lambda x: x[1], reverse=True)
 
 
