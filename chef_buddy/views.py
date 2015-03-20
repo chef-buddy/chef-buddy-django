@@ -39,6 +39,7 @@ def show_top_recipe(request):
 
     user_data = find_user_fc_ids(user)
     recipes = get_yummly_recipes()
+
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
     recipe = large_image(rec_object)
 
