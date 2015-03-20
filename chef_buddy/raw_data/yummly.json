@@ -1,0 +1,335 @@
+{
+    "attribution": {
+        "html": "Recipe search powered by <a href='http://www.yummly.com/recipes'><img alt='Yummly' src='http://static.yummly.com/api-logo.png'/></a>",
+        "url": "http://www.yummly.com/recipes/",
+        "text": "Recipe search powered by Yummly",
+        "logo": "http://static.yummly.com/api-logo.png"
+    },
+    "totalMatchCount": 910886,
+    "facetCounts": {},
+    "matches": [
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh4.ggpht.com/CxqabrfJXhORx_l1vzyX-r9ILYzmSdtEx9P78cSGUxK-7MffNUduKzFGkW6SynCdIOIxKMotO64KTbnZ1Q33FEc=s90-c"
+            },
+            "sourceDisplayName": "Clean Eating Meal Plan",
+            "ingredients": [
+                "wheat bread",
+                "butter",
+                "natural peanut butter",
+                "dark chocolate chip"
+            ],
+            "id": "Peanut-Butter-Chocolate-Melt-1038131",
+            "smallImageUrls": [
+                "http://lh3.ggpht.com/ohRIsScAT0CObDpwmXg5paALzt9kg6ETQx5wxht3N4jB1VXBqLt0fu39OdAs-BIfxuAStvg_iixPYytYzzGxqw=s90"
+            ],
+            "recipeName": "Peanut Butter Chocolate Melt",
+            "totalTimeInSeconds": 1200,
+            "attributes": {
+                "course": [],
+                "cuisine": []
+            },
+            "flavors": null,
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh6.ggpht.com/KIRc9wHnK4PD7gELOQEtGdorCnlAKhFQ5-l6yCRSqfCo2rwPF8kxVG6ubll86RspCEoOdm8fozxkd8RHmWdB=s90-c"
+            },
+            "sourceDisplayName": "ifoodreal",
+            "ingredients": [
+                "potatoes",
+                "olive oil",
+                "garlic powder",
+                "oregano",
+                "salt"
+            ],
+            "id": "Clean-Eating-French-Fries-1040183",
+            "smallImageUrls": [
+                "http://lh5.ggpht.com/FSwk5Cxiiofc3x294yxUAnQs_p9W6sWogzcEA7RKRJ4NLDApXwmrngpgTTBY9UsJle296U5br6I3zlR068wOTg=s90"
+            ],
+            "recipeName": "Clean Eating French Fries",
+            "totalTimeInSeconds": 1800,
+            "attributes": {
+                "course": [
+                    "Side Dishes"
+                ]
+            },
+            "flavors": {
+                "salty": 0.16666666666666666,
+                "sour": 0.8333333333333334,
+                "sweet": 0.16666666666666666,
+                "bitter": 0.3333333333333333,
+                "meaty": 0.16666666666666666,
+                "piquant": 0
+            },
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh3.ggpht.com/psRFXqK7Ga9wfr78WGxD59JRq1NRxh29rKsn3hzT8xDFzKw2qyP9holxvPHaXx6Q3A8l2BCE-EWCBHuoXvWZTg=s90-c"
+            },
+            "sourceDisplayName": "Hot Eats and Cool Reads",
+            "ingredients": [
+                "french bread",
+                "butter",
+                "garlic cloves",
+                "parsley"
+            ],
+            "id": "Buttery-Garlic-Bread-1040219",
+            "smallImageUrls": [
+                "http://lh6.ggpht.com/WrOtWivGtVSrTaYOZZr8nfpYIFBBeVhdoMioQFwgm_zzeG6DjN3ZOeUX7ResL9b4QUMkSSwIOkPVgEhrHHXnFQ=s90"
+            ],
+            "recipeName": "Buttery Garlic Bread",
+            "totalTimeInSeconds": 1800,
+            "attributes": {
+                "course": [
+                    "Breads"
+                ]
+            },
+            "flavors": {
+                "piquant": 0,
+                "bitter": 0.8333333333333334,
+                "sour": 0.16666666666666666,
+                "meaty": 0.5,
+                "salty": 0.8333333333333334,
+                "sweet": 0.16666666666666666
+            },
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh5.ggpht.com/Kzh16SYTdSKvER81LuTqH3jjBLX1VMA0XHWeVet9Ud--Z4ranoTEN_b0MXY08_JGpuzT84d_s5ONgbf-Ij06WA=s90-c"
+            },
+            "sourceDisplayName": "Random Mommy",
+            "ingredients": [
+                "boneless chicken breast halves",
+                "mayonnaise",
+                "diced onions",
+                "grated parmesan cheese",
+                "seasoning salt",
+                "garlic powder",
+                "pepper"
+            ],
+            "id": "Super-Simple-Chicken-Bake-1039245",
+            "smallImageUrls": [
+                "http://lh3.ggpht.com/pIgjrwUAHUmJpzc80NGCP_g3J0Rv70LYf5QvC7Aw-tOfDZmg_1F05yIW0FBPjqp-04O_aQRra0thEjkWRSOXFaA=s90"
+            ],
+            "recipeName": "Super Simple Chicken Bake",
+            "totalTimeInSeconds": 3600,
+            "attributes": {
+                "course": [
+                    "Main Dishes"
+                ],
+                "cuisine": []
+            },
+            "flavors": {
+                "salty": 0.8333333333333334,
+                "sour": 0.16666666666666666,
+                "sweet": 0.16666666666666666,
+                "bitter": 0.8333333333333334,
+                "meaty": 0.8333333333333334,
+                "piquant": 0
+            },
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh6.ggpht.com/269E8rPngfxvrRGxjPcwJW2JRkOFowIuvDPiOn7lr9WOd39Jr2y16cs6PyI8VJxydiTxMyg_tV0fAcr43F2r5Q=s90-c"
+            },
+            "sourceDisplayName": "What 2 Make",
+            "ingredients": [
+                "baking potatoes",
+                "olive oil",
+                "garlic",
+                "parsley",
+                "oregano",
+                "salt",
+                "ground black pepper"
+            ],
+            "id": "Baked-Potato-Wedges-1039272",
+            "smallImageUrls": [
+                "http://lh3.ggpht.com/sEZj4xTtF8sJ6lAd0MPKUk2nNoWk_AxQfATB8bpd6eScz8OOcqKCvLip2r7qwdnFql2C3IlvwFqNk1LQBvC6NA=s90"
+            ],
+            "recipeName": "Baked Potato Wedges",
+            "totalTimeInSeconds": 3900,
+            "attributes": {
+                "course": [
+                    "Side Dishes"
+                ]
+            },
+            "flavors": null,
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh6.ggpht.com/pLQG1u8Jq7VbNJmJKrJo-WD-wtNrxPqcLoDYZ-pSobyWFJM2BsPT6kus3LRL0A6XcjHg8HfzHRQ5wWt-e3_B1A=s90-c"
+            },
+            "sourceDisplayName": "A Homemade Living",
+            "ingredients": [
+                "shredded cheddar cheese",
+                "all-purpose flour",
+                "unsalted butter",
+                "salt",
+                "ice water"
+            ],
+            "id": "HOMEMADE-CHEEZ-ITS-1021982",
+            "smallImageUrls": [
+                "http://lh6.ggpht.com/pWKu-tOHFkczndai3GES17U5PsXJ7nuN1R2Rb91kwZgLx3NtAqf5pFlwZKTNZvpEzcPZAeuSoWFNG-png2y-YA=s90"
+            ],
+            "recipeName": "HOMEMADE CHEEZ-ITS",
+            "totalTimeInSeconds": 3300,
+            "attributes": {
+                "course": []
+            },
+            "flavors": {
+                "piquant": 0,
+                "bitter": 0.8333333333333334,
+                "sour": 0,
+                "meaty": 0.8333333333333334,
+                "salty": 0.8333333333333334,
+                "sweet": 0.16666666666666666
+            },
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh5.ggpht.com/x9b3d-qhFeOmHdvzm9N784OC-qRxGGgzbhpna2ufdEjGjmJqOX-_WAZp4fGS-xzUQozW4zmiV_OuwPP1P2v6OGo=s90-c"
+            },
+            "sourceDisplayName": "Vegetarian Mamma",
+            "ingredients": [
+                "creamer",
+                "cheese",
+                "cheddar cheese",
+                "crushed tomatoes",
+                "diced onions",
+                "pepperoncini",
+                "cherry peppers"
+            ],
+            "id": "Pantry-Queso-_glutenfree-featuring-_JeffsNaturals-1038503",
+            "smallImageUrls": [
+                "http://lh4.ggpht.com/R67v_vB2sIApHp_2kHC-2Md8E_RpoNz3ipnxuQ3FsQ3U9oF2lYxQsFNybN7PlgWuKrjKIOKexylgZ4Da-CR-jQ=s90"
+            ],
+            "recipeName": "Pantry Queso – #glutenfree featuring @JeffsNaturals",
+            "totalTimeInSeconds": 1200,
+            "attributes": {},
+            "flavors": {
+                "piquant": 0.6666666666666666,
+                "bitter": 0.8333333333333334,
+                "sour": 0.8333333333333334,
+                "meaty": 0.8333333333333334,
+                "salty": 0.6666666666666666,
+                "sweet": 0.16666666666666666
+            },
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh6.ggpht.com/hGKuf8zBm4wxrOYmOtwxsouzzYlBziv98qGuOJtUqoJZYS7sxQxAmx2z5eKiWbRP9XFfWWvKlu9XGfdq4mA0yQ=s90-c"
+            },
+            "sourceDisplayName": "The Country Chic Cottage",
+            "ingredients": [
+                "potatoes",
+                "butter",
+                "minced garlic",
+                "thyme",
+                "salt",
+                "pepper"
+            ],
+            "id": "Grilled-Potato-Packets-with-Garlic-and-Thyme-1031505",
+            "smallImageUrls": [
+                "http://lh6.ggpht.com/t8smMimNcAZIzeUSULjPM70wIndyIvgEQdq4DlbqKx-cZmxtgzo7_o_Llo-SxEMZSrlK0uhHVmn7Gro20jEIWw=s90"
+            ],
+            "recipeName": "Grilled Potato Packets with Garlic and Thyme",
+            "totalTimeInSeconds": 1200,
+            "attributes": {
+                "course": [
+                    "Side Dishes"
+                ],
+                "cuisine": []
+            },
+            "flavors": {
+                "salty": 0.8333333333333334,
+                "sour": 0.8333333333333334,
+                "sweet": 0.16666666666666666,
+                "bitter": 0.8333333333333334,
+                "meaty": 0.16666666666666666,
+                "piquant": 0
+            },
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh5.ggpht.com/seetlV8o6NthGXU6QPjVajnxkcSEyQF39-QAOLlMvz6yvDzeGa1Sq0pE_5_PyHLO3P7JqfnITEoeszAT4vIe=s90-c"
+            },
+            "sourceDisplayName": "What 2 Make",
+            "ingredients": [
+                "bittersweet chocolate",
+                "unsalted butter",
+                "large eggs",
+                "granulated sugar",
+                "pure vanilla extract",
+                "table salt",
+                "natural cocoa"
+            ],
+            "id": "Flourless-Chocolate-Cake-with-Chocolate-Glaze-1039370",
+            "smallImageUrls": [
+                "http://lh3.ggpht.com/BzNprvpwVEwydfW98nMXhN1ef-FqOi3jCv5qlRMI6_m0g5KqJP3FyPyDaFjZJNhUGrqr_hRpDHgE5rblmjj9=s90"
+            ],
+            "recipeName": "Flourless Chocolate Cake with Chocolate Glaze",
+            "totalTimeInSeconds": 4500,
+            "attributes": {
+                "course": [
+                    "Desserts"
+                ]
+            },
+            "flavors": {
+                "piquant": 0,
+                "bitter": 0.16666666666666666,
+                "sour": 0,
+                "meaty": 0.8333333333333334,
+                "salty": 0.16666666666666666,
+                "sweet": 0.8333333333333334
+            },
+            "rating": 4
+        },
+        {
+            "imageUrlsBySize": {
+                "90": "http://lh4.ggpht.com/Is6sZq33IOis7cA7En9cb8frRLyxS_6P-1uFm-jAcGSceh6l3IfL56_MIqRLx3jcITzOMnLfdjgUq9Zf3z7sSw=s90-c"
+            },
+            "sourceDisplayName": "Just a Pinch",
+            "ingredients": [
+                "cream cheese",
+                "eggs",
+                "sugar",
+                "vanilla extract",
+                "chocolate chip cookie dough"
+            ],
+            "id": "Chocolate-Chip-Cookie-Cheesecake-1040696",
+            "smallImageUrls": [
+                "http://lh6.ggpht.com/dDIL7FPtW84KL-_XoyJ59YU0qmOxkCY6hpP7P1_JbfqtPjK0FCwvGZDmXNEepKaNfj_tQ0uuFhi4DKFyLHVoLAo=s90"
+            ],
+            "recipeName": "Chocolate Chip Cookie Cheesecake",
+            "totalTimeInSeconds": 3900,
+            "attributes": {
+                "course": [
+                    "Desserts"
+                ]
+            },
+            "flavors": {
+                "piquant": 0,
+                "bitter": 0.16666666666666666,
+                "sour": 0,
+                "meaty": 0.6666666666666666,
+                "salty": 0.3333333333333333,
+                "sweet": 0.6666666666666666
+            },
+            "rating": 3
+        }
+    ],
+    "criteria": {
+        "excludedIngredients": null,
+        "allowedIngredients": null,
+        "terms": null
+    }
+}
