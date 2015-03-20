@@ -4,6 +4,7 @@ import json
 import time
 import numpy as np
 from datetime import datetime
+from sklearn.svm import LinearSVC
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -41,11 +42,10 @@ def show_top_recipe(request):
 
     store_user_recipe(user, recipe, liked)
     recipes = get_yummly_recipes()
-    likes_dislikes, fc_list_lists, recipe_fc_dict = engine_prep(user_id)
-    #Change john_engine to your function below
-    rec_list = john_engine(likes_dislikes, fc_list_lists, recipe_fc_dict)
+    likes_dislikes, fc_list_lists, recipe_fc_dict = engine_prep(user, recipes)
+    rec_list = classify_recipes(likes_dislikes, fc_list_lists, recipe_fc_dict)
     rec_answer = post_engine_prep(rec_list, recipes, recipe_fc_dict, amount=1)
-    return Response(rec_answer)
+    return Response(rec_answer[0])
 
 
 def engine_prep(user, raw_recipes):
@@ -54,17 +54,29 @@ def engine_prep(user, raw_recipes):
     Creates list of likes: [1,0,0,1,0,1]
     Creates list of flavor compound lists: [[flavorcompounds], [flavorcompounds]]
     """
+    recipes = [recipe['id'] for recipe in raw_recipes]
     classifiers = classifier_creation(user)
-    likes_dislikes = Recipe.objects.filter(recipe_id__in=recipes).values_list('liked')
+    likes_dislikes = UserFlavorCompound.objects.filter(recipe__in=recipes).values_list('liked')
     recipe_fc_dict = recipes_to_fc_id(raw_recipes)
     return likes_dislikes, classifiers, recipe_fc_dict
 
 
+def classify_recipes(likes_dislikes, fc_list_lists, recipe_fc_dict):
+    clf = LinearSVC()
+    clf.fit(fc_list_lists, likes_dislikes)
+    recipe_scores = []
+    for recipe, compounds in recipe_fc_dict.items():
+        prediction = clf.predict(compounds)
+        score = clf.decision_function(compounds)
+        recipe_scores.append((recipe, score))
+    return recipe_scores
+
+
 def classifier_creation(user):
-    recipes = UserFlavorCompound.objects.filter(user_id=user_id).values_list('recipe_id', flat=True)
-    classifiers = np.zeros((1107,), dtype=numpy.int)
+    recipes = UserFlavorCompound.objects.filter(user_id=user).values_list('recipe_id', flat=True)
+    classifiers = np.zeros((1107,), dtype=np.int)
     for recipe in recipes:
-        bare_list = np.zeros((1107,), dtype=numpy.int)
+        bare_list = np.zeros((1107,), dtype=np.int)
         for flavor_id in Recipe.objects.filter(recipe_id=recipe).values_list('flavor_id'):
             bare_list[flavor_id] = 1
         classifiers.concatenate((classifiers, bare_list))
@@ -81,8 +93,8 @@ def post_engine_prep(rec_tuple_list, recipe_list, recipe_fc_dict, amount=1):
     #                     'user to fc data':user_data,
     #                     'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
     #                     'food compounds of chosen recipe':rec_food_compounds})
-    print(sorted(rec_obj_list, key=lambda x: x[1]))
-    return sorted(rec_obj_list, key=lambda x: x[1])
+    print(sorted(rec_obj_list, key=lambda x: x[1]), reverse=True)
+    return sorted(rec_obj_list, key=lambda x: x[1], reverse=True)
 
 
 @api_view(['GET'])
@@ -125,22 +137,32 @@ def recipe_ingr_parse(recipe_list):
     return recipe_ingredient_dict
 
 
+
 def recipes_to_fc_id(recipe_list):
     """ recipe_list = Raw Recipe input from yummly
     Takes in a dict of recipes and returns a dict of recipe_id to [flavor compound ids]"""
     recipe_ingr_dict = recipe_ingr_parse(recipe_list)
     recipe_fc_dict = {}
     for recipe, ingredients in recipe_ingr_dict.items():
-        recipe_fc_dict{recipe} = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
-                                                                 .values_list('flavor_id', flat=True)
+        recipe_fc_dict[recipe] = np.array([IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
+                                                                 .values_list('flavor_id', flat=True)])
     return recipe_fc_dict
+
+
+def liked_bool(liked):
+    if liked == "1":
+        return True
+    elif liked == "-1":
+        return False
 
 
 def store_user_recipe(user_id, recipe_id, liked):
     """Takes a user_id, recipe_id, and liked (should be a 1 or -1). It will update the user to recipe
     table given the inputs."""
-    user_id, taste = int(user_id), int(taste)
-    if taste in [-1, 1]:
+    print(liked)
+    user_id, liked = int(user_id), liked_bool(liked)
+    print("bool {}".format(liked))
+    if liked in [-1, 1] and recipe_id:
         try:
             Recipe.objects.filter(recipe_id=recipe_id)
             user_recipe = UserFlavorCompound(user_id=user_id, recipe=recipe_id, liked=liked)
