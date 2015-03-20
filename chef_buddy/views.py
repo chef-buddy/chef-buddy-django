@@ -38,14 +38,15 @@ def show_top_recipe(request):
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 0), post.get('liked', 0), post.get('recipe', '')
 
-    pool = Pool()
-    result1 = pool.apply_async(get_yummly_recipes, [])
-    result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
-    recipes = result1.get(timeout=10)
-
+    store_user_recipe(user, recipe, liked)
+    recipes = get_yummly_recipes()
+    # next
     user_data = find_user_fc_ids(user)
+    engine_prep(user_id)
+
+    #rec engine function will take list of lists containing fc, a list of yes of likes, and dict of recipe_id to list of fc
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
-    recipe = large_image(rec_object)
+    rec_object = large_image(rec_object)
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
 
     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
@@ -53,7 +54,15 @@ def show_top_recipe(request):
                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
                         'food compounds of chosen recipe':rec_food_compounds})
 
-    return Response(recipe)
+    return Response(rec_object)
+
+def engine_prep(user):
+    recipes = UserRecipe.objects.filter(user_id=user_id).values_list('recipe_id', flat=True)
+    flavor_compounds = Recipe.objects.filter().value()
+
+
+    return True
+
 
 # @api_view(['GET'])
 # def show_top_recipe(request):
@@ -128,21 +137,20 @@ def check_for_recipe(recipe_id):
     :return:
     """
 
-def store_user_fc(user_id, recipe_id, taste):
-    """Takes a user_id, recipe_id, and taste (should be a 1 or -1). It will lookup the recipe_id in the
-    database to find associated food compounds. It will then lookup to see if the user has already liked
-    disliked those flavor compounds. If they've liked them before, then it will update the score. If not,
-    It will create a new row for that food compound."""
+def store_user_recipe(user_id, recipe_id, liked):
+    """Takes a user_id, recipe_id, and liked (should be a 1 or -1). It will update the user to recipe
+    table given the inputs."""
     user_id, taste = int(user_id), int(taste)
     if taste in [-1, 1]:
-        flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id).values_list('flavor_id', flat=True)
-        exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=flavor_compounds)\
-                                           .values_list('flavor_id', flat=True)
-        UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=exists).update(score=F('score') + taste)
-        newer_fc = [num for num in set(flavor_compounds) if num not in set(exists)]
-        UserFlavorCompound.objects.bulk_create([UserFlavorCompound(user_id=user_id,flavor_id=flavor,
-                                                                   score=taste) for flavor in newer_fc])
-    return True
+        try:
+            Recipe.objects.filter(recipe_id=recipe_id)
+            user_recipe = UserRecipe(user_id=user_id, recipe_id=recipe_id, liked=liked)
+            user_recipe.save()
+            return True
+        except Recipe.DoesNotExist:
+            return 'Recipe does not exist'
+    else:
+        return False
 
 def find_user_fc_ids(user_id=1):
     """user_id = id of user in question
