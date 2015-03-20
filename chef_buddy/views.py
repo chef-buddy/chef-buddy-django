@@ -10,6 +10,7 @@ from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompou
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db.models import F
+from multiprocessing import Pool
 
 
 _app_id = '844ee8f7'
@@ -37,14 +38,16 @@ def show_top_recipe(request):
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 0), post.get('liked', 0), post.get('recipe', '')
 
-    user_data = find_user_fc_ids(user)
-    recipes = get_yummly_recipes()
+    pool = Pool()
+    result1 = pool.apply_async(get_yummly_recipes, [])
+    result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
+    recipes = result1.get(timeout=10)
 
+    user_data = find_user_fc_ids(user)
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
     recipe = large_image(rec_object)
-
     store_recipe_fc(rec_object['id'], rec_food_compounds) #stores recipe_id to fc in database
-    store_user_fc(user, recipe, liked)
+
     log_recommendation({'raw recipes':[(recipe['id'],recipe['ingredients']) for recipe in recipes],
                         'user to fc data':user_data,
                         'final predicted recipe':[rec_object['id'],rec_object['ingredients']],
@@ -74,7 +77,6 @@ def random_recipe(request):
     recipe = large_image(recipe)
     return Response(recipe)
 
-@speed_test
 def get_yummly_recipes():
     recipes = get_recipes(10)
     return recipes['matches']
@@ -126,7 +128,6 @@ def check_for_recipe(recipe_id):
     :return:
     """
 
-@speed_test
 def store_user_fc(user_id, recipe_id, taste):
     """Takes a user_id, recipe_id, and taste (should be a 1 or -1). It will lookup the recipe_id in the
     database to find associated food compounds. It will then lookup to see if the user has already liked
@@ -219,7 +220,7 @@ def log_recommendation(dict_of_logs):
         the_file.write('\n\n\n\n\n')
     return True
 
-@speed_test
+
 def score_recommendation(rec_id_fc_list, user_fc_data):
     """This function takes in the recommended recipe and it's food compounds, and the total food
     compounds the user has. It will remove any negative user to food compound relationships, then produce
