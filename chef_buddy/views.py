@@ -38,11 +38,12 @@ def show_top_recipe(request):
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 0), post.get('liked', 0), post.get('recipe', '')
 
-    pool = Pool()
-    result1 = pool.apply_async(get_yummly_recipes, [])
-    result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
-    recipes = result1.get(timeout=10)
-
+    # pool = Pool()
+    # result1 = pool.apply_async(get_yummly_recipes, [])
+    # result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
+    # recipes = result1.get(timeout=10)
+    recipes = get_yummly_recipes()
+    store_user_fc(user, recipe, liked)
     user_data = find_user_fc_ids(user)
     rec_object, rec_food_compounds = rec_engine(recipes, user_data)
     recipe = large_image(rec_object)
