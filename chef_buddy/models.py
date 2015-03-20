@@ -6,16 +6,13 @@ class Recipe(models.Model):
     flavor_id = models.IntegerField()
 
     def __str__(self):
-        return self.recipe_id
+        return str(self.recipe_id)
 
 
 class UserFlavorCompound(models.Model):
     user_id = models.IntegerField()
-    flavor_id = models.IntegerField()
-    score = models.IntegerField()
-
-    class Meta:
-        unique_together = ("user_id", "flavor_id")
+    recipe = models.ForeignKey('Recipe', null=True)
+    liked = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.user_id)
