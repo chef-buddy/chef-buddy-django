@@ -42,6 +42,8 @@ def show_top_recipe(request):
 
     store_user_recipe(user, recipe, liked)
     recipes = get_yummly_recipes()
+    if not UserFlavorCompound.objects.filter(user_id=user):
+        return Response(recipes[0])
     likes_dislikes, fc_list_lists, recipe_fc_dict = engine_prep(user, recipes)
     rec_list = classify_recipes(likes_dislikes, fc_list_lists, recipe_fc_dict)
     rec_answer = post_engine_prep(rec_list, recipes, recipe_fc_dict, amount=1)
@@ -54,9 +56,9 @@ def engine_prep(user, raw_recipes):
     Creates list of likes: [1,0,0,1,0,1]
     Creates list of flavor compound lists: [[flavorcompounds], [flavorcompounds]]
     """
-    recipes = [recipe['id'] for recipe in raw_recipes]
+    recipes = UserFlavorCompound.objects.filter(user_id=user)
     classifiers = classifier_creation(user)
-    likes_dislikes = UserFlavorCompound.objects.filter(recipe__in=recipes).values_list('liked')
+    likes_dislikes = UserFlavorCompound.objects.filter(recipe__recipe_id__in=recipes).values_list('liked')
     recipe_fc_dict = recipes_to_fc_id(raw_recipes)
     return likes_dislikes, classifiers, recipe_fc_dict
 
@@ -163,13 +165,11 @@ def store_user_recipe(user_id, recipe_id, liked):
     user_id, liked = int(user_id), liked_bool(liked)
     print("bool {}".format(liked))
     if liked in [-1, 1] and recipe_id:
-        try:
-            Recipe.objects.filter(recipe_id=recipe_id)
-            user_recipe = UserFlavorCompound(user_id=user_id, recipe=recipe_id, liked=liked)
+        obj = Recipe.objects.filter(recipe_id=recipe_id)
+        if obj:
+            user_recipe = UserFlavorCompound(user_id=user_id, recipe=obj, liked=liked)
             user_recipe.save()
             return True
-        except Recipe.DoesNotExist:
-            return 'Recipe does not exist'
     else:
         return False
 
