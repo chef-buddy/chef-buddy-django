@@ -35,19 +35,28 @@ def speed_test(func):
 @speed_test
 def show_top_recipe(request):
     """Manages actual top recipe request process"""
-    amount = 1
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 1), post.get('liked', 0), post.get('recipe', '')
     store_user_fc(user, recipe, liked)
     user_fc_dict, recipe_id_fc_dict, raw_recipes = pre_engine(user)
-    normalized_list = rec_engine(recipe_id_fc_dict, user_fc_dict, amount)
+    normalized_list = rec_engine(recipe_id_fc_dict, user_fc_dict, 1)
     final_rec_result = post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict)
-
     # pool = Pool()
     # result1 = pool.apply_async(get_yummly_recipes, [])
     # result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
     # recipes = result1.get(timeout=10)
+    return Response(final_rec_result)
 
+@api_view(['GET', 'POST'])
+@method_decorator(csrf_exempt)
+@speed_test
+def recipe_list(request):
+    """Returns a list of suggested recipes"""
+    post = request.POST.copy()
+    user = post.get('user', 1)
+    user_fc_dict, recipe_id_fc_dict, raw_recipes = pre_engine(user)
+    normalized_list = rec_engine(recipe_id_fc_dict, user_fc_dict, 12)
+    final_rec_result = post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict)
     return Response(final_rec_result)
 
 @speed_test
@@ -57,13 +66,13 @@ def pre_engine(user):
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     return user_fc_dict, recipe_id_fc_dict, raw_recipes
 
-
 @speed_test
 def rec_engine(recipe_id_fc_dict, user_fc_dict, amount):
     """raw_recipes = list of raw recipes from yummly
     user_fc_dict = user to food compound dict
-    This function is the engine for picking a recipe given a user's food compounds. Returns 1 recipe object."""
-
+    amount = how many recipes to return
+    This function is the engine for picking a recipe given a user's food compounds.
+    Returns recipe object(s)."""
     match_list = user_to_recipe_counter(recipe_id_fc_dict, user_fc_dict)
     normalized_list = normalize_fc_count(match_list, recipe_id_fc_dict)
     normalized_list = normalized_list[:amount]
@@ -71,7 +80,6 @@ def rec_engine(recipe_id_fc_dict, user_fc_dict, amount):
 
 @speed_test
 def post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict):
-
     [store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id]) for recipe_id, score in normalized_list]
     rec_object_list = []
     for recipe_id, score in normalized_list:
@@ -87,6 +95,7 @@ def random_recipe(request):
     recipe = recipe_list[random.randint(1, 10)]
     recipe = large_image(recipe)
     return Response(recipe)
+
 
 def get_yummly_recipes():
     recipes = get_recipes(10)
@@ -129,8 +138,8 @@ def recipes_to_fc_id(recipe_list):
     for recipe, ingredients in recipe_ingr_dict.items():
         flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients).values_list('flavor_id', flat=True)
         recipe_fc_dict[recipe] = flavor_compounds
-
     return recipe_fc_dict
+
 
 def check_for_recipe(recipe_id):
     """
@@ -138,6 +147,7 @@ def check_for_recipe(recipe_id):
     :param recipe_id:
     :return:
     """
+
 
 def store_user_fc(user_id, recipe_id, taste):
     """Takes a user_id, recipe_id, and taste (should be a 1 or -1). It will lookup the recipe_id in the
@@ -155,6 +165,7 @@ def store_user_fc(user_id, recipe_id, taste):
         UserFlavorCompound.objects.bulk_create([UserFlavorCompound(user_id=user_id,flavor_id=flavor,
                                                                    score=taste) for flavor in update_fc])
     return True
+
 
 def find_user_fc_ids(user_id=1):
     """user_id = id of user in question
@@ -187,6 +198,7 @@ def user_to_recipe_counter(recipe_id_fc_dict, user_fc_dict):
         match_list.append((recipe_id, len(matched)))
     return match_list
 
+
 def store_recipe_fc(recipe_id, flavor_compounds):
     """recipe_id = id of the recipe needing to be housed
     flavor_compounds = list of flavor compounds associated with recipe
@@ -195,6 +207,7 @@ def store_recipe_fc(recipe_id, flavor_compounds):
         recipe_list = [Recipe(recipe_id=recipe_id, flavor_id=fc_id) for fc_id in flavor_compounds]
         Recipe.objects.bulk_create(recipe_list)
     return True
+
 
 def normalize_fc_count(match_list, recipe_id_fc_dict):
     """Normalizes scores for recipes simply having a lot of food compounds"""
@@ -205,11 +218,11 @@ def normalize_fc_count(match_list, recipe_id_fc_dict):
             normalized_list.append((recipe_id,(score/ fc_count)))
     return sorted(normalized_list, key=lambda x: x[1], reverse=True)
 
+
 def log_recommendation(dict_of_logs):
     with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
         the_file.write(str(datetime.now()))
         the_file.write('\n')
-
         for header, log in dict_of_logs.items():
             the_file.write(header)
             the_file.write('\n\n')
@@ -223,7 +236,6 @@ def score_recommendation(rec_fc_list, user_fc_data):
     """This function takes in the recommended recipe and it's food compounds, and the total food
     compounds the user has. It will remove any negative user to food compound relationships, then produce
     a score of how many food compounds of the chosen recipe were already chosen by the user."""
-
     hit_list = [user_fc for user_fc in user_fc_data.keys()
                 if user_fc in rec_fc_list and user_fc_data[user_fc] > 0]
     return len(hit_list) / len(set(rec_fc_list)) * 100
