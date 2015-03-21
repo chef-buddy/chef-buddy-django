@@ -55,8 +55,9 @@ def recipe_list(request):
     post = request.POST.copy()
     user = post.get('user', 1)
     user_fc_dict, recipe_id_fc_dict, raw_recipes = pre_engine(user)
-    normalized_list = rec_engine(recipe_id_fc_dict, user_fc_dict, 12)
+    normalized_list = rec_engine(recipe_id_fc_dict, user_fc_dict, 10)
     final_rec_result = post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict)
+    print(len(final_rec_result))
     return Response(final_rec_result)
 
 @speed_test
@@ -155,7 +156,6 @@ def store_user_fc(user_id, recipe_id, taste):
     disliked those flavor compounds. If they've liked them before, then it will update the score. If not,
     It will create a new row for that food compound."""
     user_id, taste = int(user_id), int(taste)
-
     if taste in [-1, 1]:
         flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id).values_list('flavor_id', flat=True)
         exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=flavor_compounds)\
