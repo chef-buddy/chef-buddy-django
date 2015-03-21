@@ -90,7 +90,7 @@ def post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict):
         rec_object_list.append(rec_object)
     return rec_object_list
 
-@api_view(['GET'])
+
 def random_recipe(request):
     recipe_list = get_yummly_recipes()
     recipe = recipe_list[random.randint(1, 10)]
@@ -142,14 +142,6 @@ def recipes_to_fc_id(recipe_list):
     return recipe_fc_dict
 
 
-def check_for_recipe(recipe_id):
-    """
-    checks to see if recipe is stored in local database
-    :param recipe_id:
-    :return:
-    """
-
-
 def store_user_fc(user_id, recipe_id, taste):
     """Takes a user_id, recipe_id, and taste (should be a 1 or -1). It will lookup the recipe_id in the
     database to find associated food compounds. It will then lookup to see if the user has already liked
@@ -194,8 +186,11 @@ def user_to_recipe_counter(recipe_id_fc_dict, user_fc_dict):
     user_fc_dict_positive = [key for key in user_fc_dict.keys() if user_fc_dict[key] > 0]
     match_list = []
     for recipe_id, fc_id_list in recipe_id_fc_dict.items():
-        matched = set.intersection(set(user_fc_dict_positive),set(fc_id_list))
-        match_list.append((recipe_id, len(matched)))
+        print("recipe_id {}".format(recipe_id))
+        print("fc_id_list {}".format(fc_id_list))
+        matched = set.intersection(set(user_fc_dict_positive), set(fc_id_list))
+        print("matched {}".format(matched))
+        match_list.append((recipe_id, len(matched)))  # this seems to be adding the amount of times it is matched, what if we do sum of scores for each recipe instead?
     return match_list
 
 
