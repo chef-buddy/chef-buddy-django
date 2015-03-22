@@ -6,15 +6,20 @@ from datetime import datetime
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
+from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound, YummlyResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db.models import F
 from multiprocessing import Pool
+import numpy as np
+from collections import namedtuple
 
 
 _app_id = '844ee8f7'
 _app_key = '9b846490c7c34c4f33e70564831f232b'
+
+def convert(dictionary):
+    return namedtuple('GenericDict', dictionary.keys())(**dictionary)
 
 def speed_test(func):
     """wrapper function for testing speed"""
@@ -40,11 +45,7 @@ def show_top_recipe(request):
     store_user_fc(user, recipe, liked)
     user_fc_dict, recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user_fc_dict, 1)
-    final_rec_result = post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict)
-    # pool = Pool()
-    # result1 = pool.apply_async(get_yummly_recipes, [])
-    # result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
-    # recipes = result1.get(timeout=10)
+    final_rec_result = next(post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict))
     return Response(final_rec_result)
 
 @api_view(['GET', 'POST'])
@@ -67,6 +68,7 @@ def pre_engine(user):
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     return user_fc_dict, recipe_id_fc_dict, raw_recipes
 
+
 @speed_test
 def rec_engine(recipe_id_fc_dict, user_fc_dict, amount):
     """raw_recipes = list of raw recipes from yummly
@@ -81,14 +83,14 @@ def rec_engine(recipe_id_fc_dict, user_fc_dict, amount):
 
 @speed_test
 def post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict):
-    [store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id]) for recipe_id, score in normalized_list]
     rec_object_list = []
     for recipe_id, score in normalized_list:
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
         rec_object['recommendation_score'] = score_recommendation(recipe_id_fc_dict[recipe_id], user_fc_dict)
         rec_object = large_image(rec_object)
         rec_object_list.append(rec_object)
-    return rec_object_list
+    yield rec_object_list
+    [store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id]) for recipe_id, score in normalized_list]
 
 
 def random_recipe(request):
@@ -97,7 +99,7 @@ def random_recipe(request):
     recipe = large_image(recipe)
     return Response(recipe)
 
-
+@speed_test
 def get_yummly_recipes():
     recipes = get_recipes(10)
     return recipes['matches']
@@ -158,7 +160,7 @@ def store_user_fc(user_id, recipe_id, taste):
                                                                    score=taste) for flavor in update_fc])
     return True
 
-
+@speed_test
 def find_user_fc_ids(user_id=1):
     """user_id = id of user in question
     Looks up all the user's flavor compounds and associated scores. Returns them in a dict.
@@ -172,6 +174,7 @@ def find_user_fc_ids(user_id=1):
         return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
 
 
+
 def recipe_id_to_object(recipe_id, recipe_list):
     """Looks recipe_id in recipe_list and returns recipe object"""
     for recipe in recipe_list:
@@ -183,14 +186,11 @@ def user_to_recipe_counter(recipe_id_fc_dict, user_fc_dict):
     """Takes in user's flavor compounds and recipe flavor compounds to produce a dict of how
     many times the flavor compounds of the user appear in each recipe for the user. Each time
     a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
-    user_fc_dict_positive = [key for key in user_fc_dict.keys() if user_fc_dict[key] > 0]
+    user_fc_dict_positive = set([key for key in user_fc_dict.keys() if user_fc_dict[key] > 0])
     match_list = []
     for recipe_id, fc_id_list in recipe_id_fc_dict.items():
-        print("recipe_id {}".format(recipe_id))
-        print("fc_id_list {}".format(fc_id_list))
-        matched = set.intersection(set(user_fc_dict_positive), set(fc_id_list))
-        print("matched {}".format(matched))
-        match_list.append((recipe_id, len(matched)))  # this seems to be adding the amount of times it is matched, what if we do sum of scores for each recipe instead?
+        matched = set.intersection(set(user_fc_dict_positive), set(fc_id_list))  # this line is taking .12 seconds each recipe
+        match_list.append((recipe_id, len(matched)))
     return match_list
 
 
