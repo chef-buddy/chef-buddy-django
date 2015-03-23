@@ -71,7 +71,7 @@ def recipe_id_to_object(recipe_id, recipe_list):
             return recipe
 
 
-def user_to_recipe_counter(recipe_id_fc_dict):
+def user_to_recipe_counter(recipe_id_fc_dict, user):
     """Takes in user's flavor compounds and recipe flavor compounds to produce a list of how
     many times the flavor compounds of the user appear in each recipe for the user. Each time
     a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
@@ -81,15 +81,18 @@ def user_to_recipe_counter(recipe_id_fc_dict):
     for recipe_id, fc_id_list in recipe_id_fc_dict.items():
         matched_query = UserFlavorCompound.objects. \
             values('flavor_id'). \
-            filter(user_id=1, flavor_id__in=fc_id_list, score__gt=0)
-        print("query", matched_query.query)
+            filter(user_id=user, flavor_id__in=fc_id_list, score__gt=0)
+        print(matched_query)
         matched_count = matched_query.count()
-        score = (matched_count / len(fc_id_list) * 100)
+        if len(fc_id_list) != 0:
+            score = (matched_count / len(fc_id_list) * 100)
+        else:
+            score = 0
         match_list.append((recipe_id, score))
-
+    print(match_list)
     end = time.time()
     print('user_to_recipe_counter', end - start)
-    return match_dict
+    return match_list
 
 
 def large_image(json):
