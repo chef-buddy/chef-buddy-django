@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from multiprocessing import Pool
 from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
     recipes_to_fc_id, store_user_fc, user_to_recipe_counter, \
-    store_recipe_fc, recipe_id_to_object, large_image
+    store_recipe_fc, recipe_id_to_object, large_image, log_recommendation
 
 
 @api_view(['GET', 'POST'])
@@ -20,10 +20,10 @@ def show_top_recipe(request):
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, 1, user)
     final_rec_result = post_engine(normalized_list, recipe_id_fc_dict, raw_recipes)
-    # pool = Pool()
-    # result1 = pool.apply_async(get_yummly_recipes, [])
-    # result2 = pool.apply_async(store_user_fc, args=(user, recipe, liked))
-    # recipes = result1.get(timeout=10)
+    log_recommendation({'user': user,
+                        'recipe_id_fc_dict':recipe_id_fc_dict,
+                        'normalized_list':normalized_list,
+                        'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
 @api_view(['GET', 'POST'])
@@ -52,8 +52,8 @@ def rec_engine(recipe_id_fc_dict, amount, user):
     This function is the engine for picking a recipe given a user's food compounds.
     Returns recipe object(s)."""
 
-    scored_list = user_to_recipe_counter(recipe_id_fc_dict, user)
-    scored_list = sorted(scored_list, key=lambda x: x[1], reverse=True)
+    unsorted_score_list = user_to_recipe_counter(recipe_id_fc_dict, user)
+    scored_list = sorted(unsorted_score_list, key=lambda x: x[1], reverse=True)
     return scored_list[:amount]
 
 @speed_test

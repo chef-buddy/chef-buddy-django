@@ -80,11 +80,11 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
     match_list = []
     for recipe_id, fc_id_list in recipe_id_fc_dict.items():
         matched_query = UserFlavorCompound.objects. \
-            values('flavor_id'). \
-            filter(user_id=user, flavor_id__in=fc_id_list, score__gt=0)
-        matched_count = matched_query.count()
+                        values('flavor_id'). \
+                        filter(user_id=user, flavor_id__in=fc_id_list, score__gt=0). \
+                        count()
         if len(fc_id_list) != 0:
-            score = (matched_count / len(fc_id_list) * 100)
+            score = (matched_query / len(fc_id_list) * 100)
         else:
             score = 0
         match_list.append((recipe_id, score))
@@ -109,7 +109,6 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     if not Recipe.objects.filter(recipe_id=recipe_id):
         recipe_list = [Recipe(recipe_id=recipe_id, flavor_id=fc_id) for fc_id in flavor_compounds]
         Recipe.objects.bulk_create(recipe_list)
-
     return True
 
 
