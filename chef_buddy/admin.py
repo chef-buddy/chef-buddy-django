@@ -1,5 +1,5 @@
 from django.contrib import admin
-from chef_buddy.models import Recipe, IngredientFlavorCompound, UserFlavorCompound
+from chef_buddy.models import Recipe, IngredientFlavorCompound, UserFlavorCompound, YummlyResponse
 
 class RecipeAdmin(admin.ModelAdmin):
     fields = ['recipe_id', 'flavor_id']
@@ -16,6 +16,11 @@ class UserFlavorCompoundAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'flavor_id', 'score')
     search_fields = ['user_id']
 
+class YummlyResponseAdmin(admin.ModelAdmin):
+    fields = ['recipe_id', 'response']
+    search_fields = ['response']
+
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(IngredientFlavorCompound, IngredientFlavorCompoundAdmin)
 admin.site.register(UserFlavorCompound, UserFlavorCompoundAdmin)
+admin.site.register(YummlyResponse, YummlyResponseAdmin)
