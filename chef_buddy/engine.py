@@ -76,12 +76,12 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
     a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
 
     match_list = []
-    for recipe_id, fc_id_list in recipe_id_fc_dict.items():
-        matched_query = UserFlavorCompound.objects. \
-                        values('flavor_id'). \
-                        filter(user_id=user, score__gt=0, flavor_id__in=fc_id_list)
-        print(matched_query.query)
-        score = normalize_score(fc_id_list,matched_query)
+    for recipe_id, recipe_fc_list in recipe_id_fc_dict.items():
+        in_common_fc_score = UserFlavorCompound.objects. \
+                             values_list('score', flat=True). \
+                             filter(user_id=user, flavor_id__in=recipe_fc_list)
+        print(in_common_fc_score)
+        score = normalize_score(recipe_fc_list, in_common_fc_score)
         match_list.append((recipe_id, score))
     return match_list
 
@@ -89,7 +89,14 @@ def normalize_score(recipe_fc_list, user_recipe_fc_list):
     if len(recipe_fc_list) == 0:
         return 0
     else:
-        return (len(user_recipe_fc_list) / len(recipe_fc_list) * 100)
+        # Normalize by score compared to total score of recipe food compounds
+        score_over_total = [((score / sum(user_recipe_fc_list)*100)) for score in user_recipe_fc_list]
+
+        # Normalize by number of food compounds in recipe
+        ratio = (len(user_recipe_fc_list) / len(recipe_fc_list))
+        norm_num_fc = [(score * ratio) for score in score_over_total]
+        print(sum(norm_num_fc))
+        return sum(norm_num_fc)
 
 
 def large_image(json):
