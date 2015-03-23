@@ -84,10 +84,12 @@ def user_to_recipe_counter(recipe_id_fc_dict):
             filter(user_id=1, flavor_id__in=fc_id_list, score__gt=0)
         print("query", matched_query.query)
         matched_count = matched_query.count()
-        match_list.append((recipe_id, matched_count))
+        score = (matched_count / len(fc_id_list) * 100)
+        match_list.append((recipe_id, score))
+
     end = time.time()
     print('user_to_recipe_counter', end - start)
-    return match_list
+    return match_dict
 
 
 def large_image(json):
@@ -116,16 +118,6 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     return True
 
 
-def normalize_fc_count(match_list, recipe_id_fc_dict):
-    """Normalizes scores for recipes simply having a lot of food compounds"""
-    normalized_list = []
-    for recipe_id, score in match_list:
-        if score > 0:
-            fc_count = len(recipe_id_fc_dict[recipe_id])
-            normalized_list.append((recipe_id,(score/ fc_count)))
-    return sorted(normalized_list, key=lambda x: x[1], reverse=True)
-
-
 def log_recommendation(dict_of_logs):
     with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
         the_file.write(str(datetime.now()))
@@ -137,15 +129,6 @@ def log_recommendation(dict_of_logs):
             the_file.write('\n\n')
         the_file.write('\n\n\n\n\n')
     return True
-
-
-def score_recommendation(rec_fc_list, user_fc_data):
-    """This function takes in the recommended recipe and it's food compounds, and the total food
-    compounds the user has. It will remove any negative user to food compound relationships, then produce
-    a score of how many food compounds of the chosen recipe were already chosen by the user."""
-    hit_list = [user_fc for user_fc in user_fc_data.keys()
-                if user_fc in rec_fc_list and user_fc_data[user_fc] > 0]
-    return len(hit_list) / len(set(rec_fc_list)) * 100
 
 
 def speed_test(func):
