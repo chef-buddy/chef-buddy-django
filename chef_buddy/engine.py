@@ -20,7 +20,7 @@ def get_recipes(amount):
 
 
 def get_yummly_recipes():
-    recipes = get_recipes(20)
+    recipes = get_recipes(40)
     return recipes['matches']
 
 
@@ -35,13 +35,12 @@ def recipe_ingr_parse(recipe_list):
 
 def recipes_to_fc_id(recipe_list):
     """ recipe_list = Raw Recipe input from yummly
-    Takes in a list of recipes and returns a tupled list of recipe_id to flavor compound id"""
+    Takes in a list of recipes and returns a dict of recipe_id to flavor compound id"""
     recipe_ingr_dict = recipe_ingr_parse(recipe_list)
     recipe_fc_dict = {}
     for recipe, ingredients in recipe_ingr_dict.items():
-        flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
-                                                           .values_list('flavor_id', flat=True)
-        recipe_fc_dict[recipe] = flavor_compounds
+        recipe_fc_dict[recipe] = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
+                                                                 .values_list('flavor_id', flat=True)
     return recipe_fc_dict
 
 
@@ -80,14 +79,17 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
     for recipe_id, fc_id_list in recipe_id_fc_dict.items():
         matched_query = UserFlavorCompound.objects. \
                         values('flavor_id'). \
-                        filter(user_id=user, flavor_id__in=fc_id_list, score__gt=0). \
-                        count()
-        if len(fc_id_list) != 0:
-            score = (matched_query / len(fc_id_list) * 100)
-        else:
-            score = 0
+                        filter(user_id=user, score__gt=0, flavor_id__in=fc_id_list)
+        print(matched_query.query)
+        score = normalize_score(fc_id_list,matched_query)
         match_list.append((recipe_id, score))
     return match_list
+
+def normalize_score(recipe_fc_list, user_recipe_fc_list):
+    if len(recipe_fc_list) == 0:
+        return 0
+    else:
+        return (len(user_recipe_fc_list) / len(recipe_fc_list) * 100)
 
 
 def large_image(json):
@@ -98,7 +100,6 @@ def large_image(json):
     image = json["imageUrlsBySize"]['90']
     json['largeImage'] = image.replace('=s90-c', '=s600')
     return json
-
 
 
 def store_recipe_fc(recipe_id, flavor_compounds):
