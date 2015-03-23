@@ -63,6 +63,7 @@ def store_user_fc(user_id, recipe_id, taste):
     return True
 
 
+
 def recipe_id_to_object(recipe_id, recipe_list):
     """Looks recipe_id in recipe_list and returns recipe object"""
     for recipe in recipe_list:
@@ -86,7 +87,6 @@ def user_to_recipe_counter(recipe_id_fc_dict):
         match_list.append((recipe_id, matched_count))
     end = time.time()
     print('user_to_recipe_counter', end - start)
-
     return match_list
 
 

@@ -71,7 +71,8 @@ def post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict):
         rec_object_list.append(rec_object)
     return rec_object_list
 
-
+@api_view(['GET'])
+@method_decorator(csrf_exempt)
 def random_recipe(request):
     recipe_list = get_yummly_recipes()
     recipe = recipe_list[random.randint(1, 10)]
