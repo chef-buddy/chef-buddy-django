@@ -54,7 +54,6 @@ def rec_engine(recipe_id_fc_dict, amount, user):
 
     scored_list = user_to_recipe_counter(recipe_id_fc_dict, user)
     scored_list = sorted(scored_list, key=lambda x: x[1], reverse=True)
-    print('final choice from above ', scored_list[:amount])
     return scored_list[:amount]
 
 @speed_test

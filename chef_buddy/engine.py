@@ -43,7 +43,6 @@ def recipes_to_fc_id(recipe_list):
         flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
                                                            .values_list('flavor_id', flat=True)
         recipe_fc_dict[recipe] = flavor_compounds
-    print(recipe_fc_dict)
     return recipe_fc_dict
 
 
@@ -54,18 +53,12 @@ def store_user_fc(user_id, recipe_id, taste):
     It will create a new row for that food compound."""
     user_id, taste = int(user_id), int(taste)
     if taste in [-1, 1]:
-        print('recipe id', recipe_id)
-        print('query lookup', Recipe.objects.filter(recipe_id=recipe_id))
-
         flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id).values_list('flavor_id', flat=True)
-        print('flavor_compounds:', flavor_compounds)
         exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=flavor_compounds)\
                                            .values_list('flavor_id', flat=True)
-        print('exists: ', exists)
         UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=exists).update(score=F('score') + taste)
 
         update_fc = [num for num in set(flavor_compounds) if num not in set(exists)]
-        print('update_fc: ', update_fc)
         UserFlavorCompound.objects.bulk_create([UserFlavorCompound(user_id=user_id,flavor_id=flavor,
                                                                    score=taste) for flavor in update_fc])
     return True
@@ -114,9 +107,7 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
     if not Recipe.objects.filter(recipe_id=recipe_id):
-        print('store_recipe_fc',flavor_compounds)
         recipe_list = [Recipe(recipe_id=recipe_id, flavor_id=fc_id) for fc_id in flavor_compounds]
-        print('store_recipe_fc', recipe_list)
         Recipe.objects.bulk_create(recipe_list)
 
     return True
