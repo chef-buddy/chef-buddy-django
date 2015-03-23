@@ -33,8 +33,8 @@ def recipe_list(request):
     """Returns a list of suggested recipes"""
     post = request.POST.copy()
     user = post.get('user', 1)
-    user_fc_dict, recipe_id_fc_dict, raw_recipes = pre_engine(user)
-    sorted_list = rec_engine(recipe_id_fc_dict, user_fc_dict, 10)
+    recipe_id_fc_dict, raw_recipes = pre_engine(user)
+    sorted_list = rec_engine(recipe_id_fc_dict, 10)
     final_rec_result = post_engine(scored_list, recipe_id_fc_dict, raw_recipes)
     return Response(final_rec_result)
 
