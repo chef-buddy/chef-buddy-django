@@ -1,5 +1,6 @@
 import requests
 import random
+import time
 from datetime import datetime
 from django.db.models import F, Count
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
@@ -56,6 +57,7 @@ def store_user_fc(user_id, recipe_id, taste):
         exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=flavor_compounds)\
                                            .values_list('flavor_id', flat=True)
         UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=exists).update(score=F('score') + taste)
+
         update_fc = [num for num in set(flavor_compounds) if num not in set(exists)]
         UserFlavorCompound.objects.bulk_create([UserFlavorCompound(user_id=user_id,flavor_id=flavor,
                                                                    score=taste) for flavor in update_fc])
