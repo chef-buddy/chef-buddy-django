@@ -14,16 +14,17 @@ from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
 @speed_test
 def show_top_recipe(request):
     """Manages actual top recipe request process"""
+    amount = 1
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 1), post.get('liked', 0), post.get('recipe', '')
     store_user_fc(user, recipe, liked)
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
-    normalized_list = rec_engine(recipe_id_fc_dict, 1, user)
-    final_rec_result = post_engine(normalized_list, recipe_id_fc_dict, raw_recipes)
-    log_recommendation({'user': user,
-                        'recipe_id_fc_dict':recipe_id_fc_dict,
-                        'normalized_list':normalized_list,
-                        'final_rec_result':final_rec_result})
+    normalized_list = rec_engine(recipe_id_fc_dict, user)
+    final_rec_result = post_engine(normalized_list[:amount], recipe_id_fc_dict, raw_recipes)
+    # log_recommendation({'user': user,
+    #                     'recipe_id_fc_dict':recipe_id_fc_dict,
+    #                     'normalized_list':normalized_list,
+    #                     'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
 @api_view(['GET', 'POST'])
@@ -31,11 +32,13 @@ def show_top_recipe(request):
 @speed_test
 def recipe_list(request):
     """Returns a list of suggested recipes"""
+    #John change this amount based on how many recipes you want back from the engine
+    amount = 1
     post = request.POST.copy()
     user = post.get('user', 1)
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
-    sorted_list = rec_engine(recipe_id_fc_dict, 10)
-    final_rec_result = post_engine(scored_list, recipe_id_fc_dict, raw_recipes)
+    sorted_list = rec_engine(recipe_id_fc_dict, user)
+    final_rec_result = post_engine(scored_list[:amount], recipe_id_fc_dict, raw_recipes)
     return Response(final_rec_result)
 
 @speed_test
@@ -45,7 +48,7 @@ def pre_engine(user):
     return recipe_id_fc_dict, raw_recipes
 
 @speed_test
-def rec_engine(recipe_id_fc_dict, amount, user):
+def rec_engine(recipe_id_fc_dict, user):
     """raw_recipes = list of raw recipes from yummly
     user_fc_dict = user to food compound dict
     amount = how many recipes to return
@@ -54,7 +57,7 @@ def rec_engine(recipe_id_fc_dict, amount, user):
 
     unsorted_score_list = user_to_recipe_counter(recipe_id_fc_dict, user)
     scored_list = sorted(unsorted_score_list, key=lambda x: x[1], reverse=True)
-    return scored_list[:amount]
+    return scored_list
 
 @speed_test
 def post_engine(scored_list, recipe_id_fc_dict, raw_recipes):

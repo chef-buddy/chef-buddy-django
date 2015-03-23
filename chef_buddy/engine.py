@@ -20,7 +20,7 @@ def get_recipes(amount):
 
 
 def get_yummly_recipes():
-    recipes = get_recipes(10)
+    recipes = get_recipes(20)
     return recipes['matches']
 
 
