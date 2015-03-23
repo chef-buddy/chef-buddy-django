@@ -4,11 +4,10 @@ import time
 from datetime import datetime
 from django.db.models import F, Count
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
+import os
 
-
-
-_app_id = '844ee8f7'
-_app_key = '9b846490c7c34c4f33e70564831f232b'
+_app_id = os.environ['APP_ID']
+_app_key = os.environ['APP_KEY']
 
 
 def get_recipes(amount):
