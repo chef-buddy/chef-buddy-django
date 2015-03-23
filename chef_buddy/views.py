@@ -38,24 +38,23 @@ def recipe_list(request):
     user_fc_dict, recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user_fc_dict, 10)
     final_rec_result = post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict)
-    print(len(final_rec_result))
     return Response(final_rec_result)
 
 @speed_test
 def pre_engine(user):
-    user_fc_dict = find_user_fc_ids(user)
     raw_recipes = get_yummly_recipes()
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
-    return user_fc_dict, recipe_id_fc_dict, raw_recipes
+    return recipe_id_fc_dict, raw_recipes
 
 @speed_test
-def rec_engine(recipe_id_fc_dict, user_fc_dict, amount):
+def rec_engine(recipe_id_fc_dict, amount):
     """raw_recipes = list of raw recipes from yummly
     user_fc_dict = user to food compound dict
     amount = how many recipes to return
     This function is the engine for picking a recipe given a user's food compounds.
     Returns recipe object(s)."""
-    match_list = user_to_recipe_counter(recipe_id_fc_dict, user_fc_dict)
+
+    match_list = user_to_recipe_counter(recipe_id_fc_dict)
     normalized_list = normalize_fc_count(match_list, recipe_id_fc_dict)
     normalized_list = normalized_list[:amount]
     return normalized_list
@@ -63,6 +62,7 @@ def rec_engine(recipe_id_fc_dict, user_fc_dict, amount):
 @speed_test
 def post_engine(normalized_list, recipe_id_fc_dict, raw_recipes, user_fc_dict):
     [store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id]) for recipe_id, score in normalized_list]
+
     rec_object_list = []
     for recipe_id, score in normalized_list:
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)

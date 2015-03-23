@@ -2,8 +2,9 @@ import requests
 import time
 import random
 from datetime import datetime
-from django.db.models import F
+from django.db.models import F, Count
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
+
 
 
 _app_id = '844ee8f7'
@@ -39,7 +40,8 @@ def recipes_to_fc_id(recipe_list):
     recipe_ingr_dict = recipe_ingr_parse(recipe_list)
     recipe_fc_dict = {}
     for recipe, ingredients in recipe_ingr_dict.items():
-        flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients).values_list('flavor_id', flat=True)
+        flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
+                                                           .values_list('flavor_id', flat=True)
         recipe_fc_dict[recipe] = flavor_compounds
     return recipe_fc_dict
 
@@ -61,16 +63,6 @@ def store_user_fc(user_id, recipe_id, taste):
     return True
 
 
-def find_user_fc_ids(user_id=1):
-    """user_id = id of user in question
-    Looks up all the user's flavor compounds and associated scores. Returns them in a dict.
-    Also returns list of flavor compounds for that recipe. If the user doesn't have any flavor
-    compounds, then we'll return a random recipe (one that is derived from user 1's flavor compounds)"""
-    flavor_compounds = UserFlavorCompound.objects.filter(user_id=user_id)
-    if not flavor_compounds.exists():
-        flavor_compounds = UserFlavorCompound.objects.filter(user_id=1)
-    return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
-
 
 def recipe_id_to_object(recipe_id, recipe_list):
     """Looks recipe_id in recipe_list and returns recipe object"""
@@ -79,15 +71,22 @@ def recipe_id_to_object(recipe_id, recipe_list):
             return recipe
 
 
-def user_to_recipe_counter(recipe_id_fc_dict, user_fc_dict):
-    """Takes in user's flavor compounds and recipe flavor compounds to produce a dict of how
+def user_to_recipe_counter(recipe_id_fc_dict):
+    """Takes in user's flavor compounds and recipe flavor compounds to produce a list of how
     many times the flavor compounds of the user appear in each recipe for the user. Each time
     a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
-    user_fc_dict_positive = [key for key in user_fc_dict.keys() if user_fc_dict[key] > 0]
+
+    start = time.time()
     match_list = []
     for recipe_id, fc_id_list in recipe_id_fc_dict.items():
-        matched = set.intersection(set(user_fc_dict_positive), set(fc_id_list))
-        match_list.append((recipe_id, len(matched)))  # this seems to be adding the amount of times it is matched, what if we do sum of scores for each recipe instead?
+        matched_query = UserFlavorCompound.objects. \
+            values('flavor_id'). \
+            filter(user_id=1, flavor_id__in=fc_id_list, score__gt=0)
+        print("query", matched_query.query)
+        matched_count = matched_query.count()
+        match_list.append((recipe_id, matched_count))
+    end = time.time()
+    print('user_to_recipe_counter', end - start)
     return match_list
 
 
@@ -101,13 +100,19 @@ def large_image(json):
     return json
 
 
+
 def store_recipe_fc(recipe_id, flavor_compounds):
     """recipe_id = id of the recipe needing to be housed
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
     if not Recipe.objects.filter(recipe_id=recipe_id):
         recipe_list = [Recipe(recipe_id=recipe_id, flavor_id=fc_id) for fc_id in flavor_compounds]
+
+        start = time.time()
         Recipe.objects.bulk_create(recipe_list)
+        end = time.time()
+        print('store_recipe_fc= bulk create: ', end-start)
+
     return True
 
 
