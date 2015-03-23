@@ -66,12 +66,10 @@ def find_user_fc_ids(user_id=1):
     Looks up all the user's flavor compounds and associated scores. Returns them in a dict.
     Also returns list of flavor compounds for that recipe. If the user doesn't have any flavor
     compounds, then we'll return a random recipe (one that is derived from user 1's flavor compounds)"""
-    try:
-        flavor_compounds = UserFlavorCompound.objects.filter(user_id=user_id)
-        return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
-    except UserFlavorCompound.DoesNotExist:
+    flavor_compounds = UserFlavorCompound.objects.filter(user_id=user_id)
+    if not flavor_compounds.exists():
         flavor_compounds = UserFlavorCompound.objects.filter(user_id=1)
-        return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
+    return {flavor.flavor_id: flavor.score for flavor in flavor_compounds}
 
 
 def recipe_id_to_object(recipe_id, recipe_list):
@@ -88,10 +86,7 @@ def user_to_recipe_counter(recipe_id_fc_dict, user_fc_dict):
     user_fc_dict_positive = [key for key in user_fc_dict.keys() if user_fc_dict[key] > 0]
     match_list = []
     for recipe_id, fc_id_list in recipe_id_fc_dict.items():
-        print("recipe_id {}".format(recipe_id))
-        print("fc_id_list {}".format(fc_id_list))
         matched = set.intersection(set(user_fc_dict_positive), set(fc_id_list))
-        print("matched {}".format(matched))
         match_list.append((recipe_id, len(matched)))  # this seems to be adding the amount of times it is matched, what if we do sum of scores for each recipe instead?
     return match_list
 
