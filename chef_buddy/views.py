@@ -18,6 +18,12 @@ def show_top_recipe(request):
     amount = 1
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 1), post.get('liked', 0), post.get('recipe', '')
+    print("user {}".format(user))
+    print("liked {}".format(liked))
+    print("recipe {}".format(recipe))
+    print("user type {}".format(type(user)))
+    print("liked type {}".format(type(liked)))
+    print("recipe type {}".format(type(recipe)))
     store_user_fc(user, recipe, liked)
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user)
