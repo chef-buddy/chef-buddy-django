@@ -39,8 +39,9 @@ def recipes_to_fc_id(recipe_list):
     recipe_ingr_dict = recipe_ingr_parse(recipe_list)
     recipe_fc_dict = {}
     for recipe, ingredients in recipe_ingr_dict.items():
-        recipe_fc_dict[recipe] = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
-                                                                 .values_list('flavor_id', flat=True)
+        recipe_fc_dict[recipe] = list(IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
+                                                                 .values_list('flavor_id', flat=True)\
+                                                                 .all())
     return recipe_fc_dict
 
 
@@ -76,9 +77,12 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
 
     match_list = []
     for recipe_id, recipe_fc_list in recipe_id_fc_dict.items():
-        in_common_fc_score = UserFlavorCompound.objects. \
+        if recipe_fc_list:
+            in_common_fc_score = UserFlavorCompound.objects. \
                              values_list('score', flat=True). \
-                             filter(user_id=user, flavor_id__in=recipe_fc_list)
+                             filter(user_id=user, flavor_id__in=list(recipe_fc_list))
+        else:
+            in_common_fc_score = []
         score = normalize_score(recipe_fc_list, in_common_fc_score)
         match_list.append((recipe_id, score))
     return match_list
