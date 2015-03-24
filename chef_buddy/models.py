@@ -1,4 +1,5 @@
 from django.db import models
+from jsonfield import JSONField
 
 
 class Recipe(models.Model):
@@ -27,3 +28,11 @@ class IngredientFlavorCompound(models.Model):
 
     def __str__(self):
         return self.ingredient_id
+
+
+class YummlyResponse(models.Model):
+    recipe_id = models.CharField(max_length=200)
+    response = JSONField()
+
+    def __str__(self):
+        return self.recipe_id
