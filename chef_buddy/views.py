@@ -7,7 +7,8 @@ from django.utils.decorators import method_decorator
 from multiprocessing import Pool
 from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
     recipes_to_fc_id, store_user_fc, user_to_recipe_counter, \
-    store_recipe_fc, recipe_id_to_object, large_image, log_recommendation
+    store_recipe_fc, recipe_id_to_object, large_image, \
+    log_recommendation, get_filtered_recipes
 
 
 @api_view(['GET', 'POST'])
@@ -37,10 +38,21 @@ def recipe_list(request):
     amount = 1
     post = request.POST.copy()
     user = post.get('user', 1)
-    recipe_id_fc_dict, raw_recipes = pre_engine(user)
+    recipe_id_fc_dict
+    raw_recipes = get_filtered_recipes(user)
     sorted_list = rec_engine(recipe_id_fc_dict, user)
     final_rec_result = post_engine(scored_list[:amount], recipe_id_fc_dict, raw_recipes)
     return Response(final_rec_result)
+
+@speed_test
+def list_pre_engine(user, label_list, amount):
+    start = time.time()
+    raw_recipes = get_filtered_recipes(label_list, amount)
+    end = time.time()
+    print('yummly response time ', end-start)
+    recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
+    return recipe_id_fc_dict, raw_recipes
+
 
 @speed_test
 def pre_engine(user):
