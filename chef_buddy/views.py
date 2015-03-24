@@ -1,4 +1,5 @@
 import random
+import time
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
@@ -21,10 +22,10 @@ def show_top_recipe(request):
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user)
     final_rec_result = post_engine(normalized_list[:amount], recipe_id_fc_dict, raw_recipes)
-    # log_recommendation({'user': user,
-    #                     'recipe_id_fc_dict':recipe_id_fc_dict,
-    #                     'normalized_list':normalized_list,
-    #                     'final_rec_result':final_rec_result})
+    log_recommendation({'user': user,
+                        'recipe_id_fc_dict':recipe_id_fc_dict,
+                        'normalized_list':normalized_list,
+                        'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
 @api_view(['GET', 'POST'])
@@ -43,17 +44,19 @@ def recipe_list(request):
 
 @speed_test
 def pre_engine(user):
+    start = time.time()
     raw_recipes = get_yummly_recipes()
+    end = time.time()
+    print('yummly response time ', end-start)
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     return recipe_id_fc_dict, raw_recipes
 
 @speed_test
 def rec_engine(recipe_id_fc_dict, user):
-    """raw_recipes = list of raw recipes from yummly
-    user_fc_dict = user to food compound dict
-    amount = how many recipes to return
+    """recipe_id_fc_dict = dictionary containing the id of the recipe to a list of the food compounds
+    user = id of the user that is being predicted for
     This function is the engine for picking a recipe given a user's food compounds.
-    Returns recipe object(s)."""
+    Returns a list of recipes in tuple form (recipe_id, score)."""
 
     unsorted_score_list = user_to_recipe_counter(recipe_id_fc_dict, user)
     scored_list = sorted(unsorted_score_list, key=lambda x: x[1], reverse=True)

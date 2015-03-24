@@ -20,7 +20,7 @@ def get_recipes(amount):
 
 
 def get_yummly_recipes():
-    recipes = get_recipes(20)
+    recipes = get_recipes(40)
     return recipes['matches']
 
 
@@ -35,13 +35,12 @@ def recipe_ingr_parse(recipe_list):
 
 def recipes_to_fc_id(recipe_list):
     """ recipe_list = Raw Recipe input from yummly
-    Takes in a list of recipes and returns a tupled list of recipe_id to flavor compound id"""
+    Takes in a list of recipes and returns a dict of recipe_id to flavor compound id"""
     recipe_ingr_dict = recipe_ingr_parse(recipe_list)
     recipe_fc_dict = {}
     for recipe, ingredients in recipe_ingr_dict.items():
-        flavor_compounds = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
-                                                           .values_list('flavor_id', flat=True)
-        recipe_fc_dict[recipe] = flavor_compounds
+        recipe_fc_dict[recipe] = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
+                                                                 .values_list('flavor_id', flat=True)
     return recipe_fc_dict
 
 
@@ -55,13 +54,12 @@ def store_user_fc(user_id, recipe_id, taste):
         flavor_compounds = Recipe.objects.filter(recipe_id=recipe_id).values_list('flavor_id', flat=True)
         exists = UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=flavor_compounds)\
                                            .values_list('flavor_id', flat=True)
-        UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=exists).update(score=F('score') + taste)
-
-        update_fc = [num for num in set(flavor_compounds) if num not in set(exists)]
+        UserFlavorCompound.objects.filter(user_id=user_id, flavor_id__in=exists). \
+                                   update(score=F('score') + taste)
+        new_fc = [num for num in set(flavor_compounds) if num not in set(exists)]
         UserFlavorCompound.objects.bulk_create([UserFlavorCompound(user_id=user_id,flavor_id=flavor,
-                                                                   score=taste) for flavor in update_fc])
+                                                                   score=taste) for flavor in new_fc])
     return True
-
 
 
 def recipe_id_to_object(recipe_id, recipe_list):
@@ -77,17 +75,29 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
     a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
 
     match_list = []
-    for recipe_id, fc_id_list in recipe_id_fc_dict.items():
-        matched_query = UserFlavorCompound.objects. \
-                        values('flavor_id'). \
-                        filter(user_id=user, flavor_id__in=fc_id_list, score__gt=0). \
-                        count()
-        if len(fc_id_list) != 0:
-            score = (matched_query / len(fc_id_list) * 100)
-        else:
-            score = 0
+    for recipe_id, recipe_fc_list in recipe_id_fc_dict.items():
+        in_common_fc_score = UserFlavorCompound.objects. \
+                             values_list('score', flat=True). \
+                             filter(user_id=user, flavor_id__in=recipe_fc_list)
+        score = normalize_score(recipe_fc_list, in_common_fc_score)
         match_list.append((recipe_id, score))
     return match_list
+
+def normalize_score(recipe_fc_list, user_recipe_fc_list):
+    if len(recipe_fc_list) == 0:
+        return 0
+    else:
+        #print('raw score: ', user_recipe_fc_list)
+        # Normalize by score compared to total score of recipe food compounds
+        score_over_total = [((score / sum(user_recipe_fc_list)*100)) for score in user_recipe_fc_list]
+        #print('score over total: ', score_over_total)
+        # Normalize by number of food compounds in recipe
+        ratio = (len(user_recipe_fc_list) / len(recipe_fc_list))
+        #print('ratio: ', ratio)
+        norm_num_fc = [(score * ratio) for score in score_over_total]
+        #print('norm_num_fc: ', norm_num_fc)
+        #print('final score for recipe: ', sum(norm_num_fc))
+        return sum(norm_num_fc)
 
 
 def large_image(json):
@@ -98,7 +108,6 @@ def large_image(json):
     image = json["imageUrlsBySize"]['90']
     json['largeImage'] = image.replace('=s90-c', '=s600')
     return json
-
 
 
 def store_recipe_fc(recipe_id, flavor_compounds):
