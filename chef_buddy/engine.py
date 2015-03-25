@@ -67,6 +67,16 @@ def get_yummly_recipes():
     recipes = get_recipes(40)
     return recipes['matches']
 
+def get_curated_random_recipes():
+    category_list = ['chicken', 'beef', 'bread', 'tomato', 'cake', 'tuna', 'strawberry',
+                     'mexican', 'italian', 'chinese', 'seafood', 'potato', 'cheese']
+    params={'_app_id':_app_id, '_app_key':_app_key,
+            'maxResult': 40, 'requirePictures':'true',
+            'q':random.choice(category_list),
+            'start':random.randint(1, 500)}
+    all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
+    recipes = all_recipes.json()
+    return recipes['matches']
 
 def recipe_ingr_parse(recipe_list):
     """recipe_list = raw list of recipes directly from yummly
