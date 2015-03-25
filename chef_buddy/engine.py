@@ -166,7 +166,7 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
     if not Recipe.objects.filter(recipe_id=recipe_id):
-        recipe_list = [Recipe(recipe_id=recipe_id, flavor_id=fc_id) for fc_id in flavor_compounds]
+        recipe_list = [Recipe(recipe_id=str(recipe_id), flavor_id=int(fc_id)) for fc_id in flavor_compounds]
         Recipe.objects.bulk_create(recipe_list)
     return True
 
