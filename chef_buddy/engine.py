@@ -129,22 +129,23 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
             in_common_fc_score = []
         score = normalize_score(recipe_fc_list, in_common_fc_score)
         match_list.append((recipe_id, score))
+        print("match list {}".format(match_list))
     return match_list
 
 def normalize_score(recipe_fc_list, user_recipe_fc_list):
     if len(recipe_fc_list) == 0:
         return 0
     else:
-        #print('raw score: ', user_recipe_fc_list)
+        print('raw score: ', user_recipe_fc_list)
         # Normalize by score compared to total score of recipe food compounds
         score_over_total = [((score / sum(user_recipe_fc_list)*100)) for score in user_recipe_fc_list]
-        #print('score over total: ', score_over_total)
+        print('score over total: ', score_over_total)
         # Normalize by number of food compounds in recipe
         ratio = (len(user_recipe_fc_list) / len(recipe_fc_list))
-        #print('ratio: ', ratio)
+        print('ratio: ', ratio)
         norm_num_fc = [(score * ratio) for score in score_over_total]
-        #print('norm_num_fc: ', norm_num_fc)
-        #print('final score for recipe: ', sum(norm_num_fc))
+        print('norm_num_fc: ', norm_num_fc)
+        print('final score for recipe: ', sum(norm_num_fc))
         return sum(norm_num_fc)
 
 
