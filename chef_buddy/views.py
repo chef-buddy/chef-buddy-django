@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from multiprocessing import Pool
 from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
     recipes_to_fc_id, store_user_fc, user_to_recipe_counter, \
     store_recipe_fc, recipe_id_to_object, large_image, \
@@ -19,12 +18,6 @@ def show_top_recipe(request):
     amount = 1
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 1), post.get('liked', 0), post.get('recipe', '')
-    print("user {}".format(user))
-    print("liked {}".format(liked))
-    print("recipe {}".format(recipe))
-    print("user type {}".format(type(user)))
-    print("liked type {}".format(type(liked)))
-    print("recipe type {}".format(type(recipe)))
     store_user_fc(user, recipe, liked)
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user)
@@ -87,7 +80,7 @@ def post_engine(scored_list, recipe_id_fc_dict, raw_recipes):
     rec_object_list = []
     for recipe_id, score in scored_list:
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
-        rec_object['recommendation_score'] = score
+        rec_object['recommendation_score'] = round(score, 2)
         rec_object = large_image(rec_object)
         rec_object_list.append(rec_object)
     return rec_object_list
