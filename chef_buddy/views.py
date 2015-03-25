@@ -36,10 +36,12 @@ def recipe_list(request):
     """Returns a list of suggested recipes"""
     amount = 10
     user = request.GET.get('user', 1)
+    search = request.GET.get('search', '')
+    print("search {}".format(search))
     print("user {}".format(user))
     filters = request.GET.getlist('filter', [])
     print("filters {}".format(filters))
-    raw_recipes = get_filtered_recipes(filters, amount)
+    raw_recipes = get_filtered_recipes(search, filters, amount)
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     sorted_list = rec_engine(recipe_id_fc_dict, user)
     json_recipes = post_engine(sorted_list[:amount], recipe_id_fc_dict, raw_recipes)
