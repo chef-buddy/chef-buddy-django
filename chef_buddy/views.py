@@ -3,11 +3,12 @@ import time
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
+from chef_buddy.models import UserFlavorCompound
 from django.utils.decorators import method_decorator
 from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
     recipes_to_fc_id, store_user_fc, user_to_recipe_counter, \
     store_recipe_fc, recipe_id_to_object, large_image, \
-    log_recommendation, get_filtered_recipes
+    log_recommendation, get_filtered_recipes, get_curated_random_recipes
 
 
 @api_view(['GET', 'POST'])
@@ -57,9 +58,13 @@ def list_pre_engine(user, label_list, amount):
 @speed_test
 def pre_engine(user):
     start = time.time()
-    raw_recipes = get_yummly_recipes()
+    if UserFlavorCompound.objects.filter(user_id=user).count() < 30 or random.random() > .05:
+        raw_recipes = get_curated_random_recipes()
+    else:
+        raw_recipes = get_yummly_recipes()
     end = time.time()
     print('yummly response time ', end-start)
+
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     return recipe_id_fc_dict, raw_recipes
 
