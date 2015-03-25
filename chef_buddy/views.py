@@ -83,7 +83,11 @@ def rec_engine(recipe_id_fc_dict, user):
 
 @speed_test
 def post_engine(scored_list, recipe_id_fc_dict, raw_recipes):
-    [store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id]) for recipe_id, score in scored_list]
+    print("recipe_id_fc_dict {}".format(recipe_id_fc_dict))
+    for recipe_id, score in scored_list:
+        print(recipe_id)
+        print(score)
+        store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
     rec_object_list = []
     for recipe_id, score in scored_list:
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
