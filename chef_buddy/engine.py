@@ -73,6 +73,7 @@ def get_yummly_recipes():
     recipes = get_recipes(40)
     return recipes['matches']
 
+
 def get_curated_random_recipes():
     category_list = ['chicken', 'beef', 'bread', 'tomato', 'cake', 'tuna', 'strawberry',
                      'mexican', 'italian', 'chinese', 'seafood', 'potato', 'cheese']
@@ -83,6 +84,7 @@ def get_curated_random_recipes():
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
     recipes = all_recipes.json()
     return recipes['matches']
+
 
 def recipe_ingr_parse(recipe_list):
     """recipe_list = raw list of recipes directly from yummly
@@ -171,8 +173,10 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     """recipe_id = id of the recipe needing to be housed
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
+    print("flavor compounds {}".format(flavor_compounds))
     if not Recipe.objects.filter(recipe_id=recipe_id):
         recipe_list = [Recipe(recipe_id=str(recipe_id), flavor_id=int(fc_id)) for fc_id in flavor_compounds]
+        print("recipe list {}".format(recipe_list))
         Recipe.objects.bulk_create(recipe_list)
     return True
 
