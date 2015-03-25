@@ -140,6 +140,7 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
         else:
             score = 0
         match_list.append((recipe_id, score))
+        print("match list {}".format(match_list))
     return match_list
 
 
@@ -148,6 +149,7 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
     normalized_scoring = [(fc/total_fc_score) for fc in user_fc_scores]
     engine_score = (sum(normalized_scoring) / len(recipe_fc_list))
     return engine_score / .01 * 100
+
 
 
 def large_image(json):
