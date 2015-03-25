@@ -7,7 +7,8 @@ from django.utils.decorators import method_decorator
 from multiprocessing import Pool
 from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
     recipes_to_fc_id, store_user_fc, user_to_recipe_counter, \
-    store_recipe_fc, recipe_id_to_object, large_image, log_recommendation
+    store_recipe_fc, recipe_id_to_object, large_image, \
+    log_recommendation, get_filtered_recipes
 
 
 @api_view(['GET', 'POST'])
@@ -34,19 +35,31 @@ def show_top_recipe(request):
                         'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 @method_decorator(csrf_exempt)
 @speed_test
 def recipe_list(request):
     """Returns a list of suggested recipes"""
-    #John change this amount based on how many recipes you want back from the engine
-    amount = 1
-    post = request.POST.copy()
-    user = post.get('user', 1)
-    recipe_id_fc_dict, raw_recipes = pre_engine(user)
+    amount = 10
+    user = request.GET.get('user', 1)
+    print("user {}".format(user))
+    filters = request.GET.getlist('filter', [])
+    print("filters {}".format(filters))
+    raw_recipes = get_filtered_recipes(filters, amount)
+    recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     sorted_list = rec_engine(recipe_id_fc_dict, user)
-    final_rec_result = post_engine(scored_list[:amount], recipe_id_fc_dict, raw_recipes)
-    return Response(final_rec_result)
+    json_recipes = post_engine(sorted_list[:amount], recipe_id_fc_dict, raw_recipes)
+    return Response(json_recipes)
+
+@speed_test
+def list_pre_engine(user, label_list, amount):
+    start = time.time()
+    raw_recipes = get_filtered_recipes(label_list, amount)
+    end = time.time()
+    print('yummly response time ', end-start)
+    recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
+    return recipe_id_fc_dict, raw_recipes
+
 
 @speed_test
 def pre_engine(user):

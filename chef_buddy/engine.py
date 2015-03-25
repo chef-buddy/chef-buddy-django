@@ -10,13 +10,57 @@ _app_id = os.environ['APP_ID']
 _app_key = os.environ['APP_KEY']
 
 
+def speed_test(func):
+    """wrapper function for testing speed"""
+    def wrapper(*args, **kwargs):
+        t1 = time.time()
+        for x in range(1):
+            results = func(*args, **kwargs)
+        t2 = time.time()
+        total_time = t2-t1
+        print('\n')
+        print('{} took {} seconds'.format(func.__name__, total_time))
+        return results
+    return wrapper
+
+
 def get_recipes(amount):
     random_start = random.randint(1, (321961 - amount))
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes',
-                               params={'_app_id':_app_id, '_app_key':_app_key,
-                                       'maxResult':amount, 'requirePictures':'true',
-                                       'start':random_start })
+                                params={'_app_id':_app_id, '_app_key':_app_key,
+                                        'maxResult':amount, 'requirePictures':'true',
+                                        'start':random_start })
     return all_recipes.json()
+
+@speed_test
+def get_filtered_recipes(label_list, amount):
+    params = get_parameters(label_list, amount)
+    all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
+    recipes = all_recipes.json()
+    return recipes['matches']
+
+@speed_test
+def get_parameters(label_list, amount):
+    """Takes in a list of dietary labels and then returns a parameter list to be sent to the yummly api"""
+    params={'_app_id':_app_id, '_app_key':_app_key,
+            'maxResult': amount, 'requirePictures':'true',
+            'allowedDiet[]':[], 'allowedAllergy[]':[]}
+
+    allergy_dict = {'dairy': '396^Dairy-Free', 'egg': '397^Egg-Free',
+                    'gluten': '393^Gluten-Free', 'peanut': '394^Peanut-Free',
+                    'seafood': '398^Seafood-Free', 'seasame': '399^Sesame-Free',
+                    'soy': '400^Soy-Free', 'sulfite': '401^Sulfite-Free',
+                    'nut': '395^Tree+Nut-Free', 'wheat': '392^Wheat'}
+
+    diet_dict = {'lacto': '388^Lacto vegetarian', 'ovo': '389^Ovo+vegetarian',
+                 'pescetarian': '390^Pescetarian','vegan': '386^Vegan',
+                 'vegetarian': '387^Lacto-ovo+vegetarian', 'paleo': '403^Paleo'}
+    for label in label_list:
+        if label in diet_dict:
+            params['allowedDiet[]'].append(diet_dict[label])
+        if label in allergy_dict:
+            params['allowedAllergy[]'].append(allergy_dict[label])
+    return params
 
 
 def get_yummly_recipes():
@@ -135,17 +179,3 @@ def log_recommendation(dict_of_logs):
             the_file.write('\n\n')
         the_file.write('\n\n\n\n\n')
     return True
-
-
-def speed_test(func):
-    """wrapper function for testing speed"""
-    def wrapper(*args, **kwargs):
-        t1 = time.time()
-        for x in range(1):
-            results = func(*args, **kwargs)
-        t2 = time.time()
-        total_time = t2-t1
-        print('\n')
-        print('{} took {} seconds'.format(func.__name__, total_time))
-        return results
-    return wrapper
