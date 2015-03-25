@@ -8,7 +8,7 @@ from rest_framework import routers, serializers, viewsets, generics
 
 urlpatterns = patterns('chef_buddy.views',
     url(r'^api/v1/suggested_recipe/$', 'show_top_recipe'),
-    url(r'^api/v1/recipe_list/$', 'recipe_list'),
+    url(r'^api/v1/recipe_list/.{0,}$', 'recipe_list'),
     url(r'^api/v1/random_recipe/$', 'random_recipe'),
     url(r'^admin/', include(admin.site.urls))
 )

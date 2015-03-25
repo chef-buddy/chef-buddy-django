@@ -10,6 +10,20 @@ _app_id = os.environ['APP_ID']
 _app_key = os.environ['APP_KEY']
 
 
+def speed_test(func):
+    """wrapper function for testing speed"""
+    def wrapper(*args, **kwargs):
+        t1 = time.time()
+        for x in range(1):
+            results = func(*args, **kwargs)
+        t2 = time.time()
+        total_time = t2-t1
+        print('\n')
+        print('{} took {} seconds'.format(func.__name__, total_time))
+        return results
+    return wrapper
+
+
 def get_recipes(amount):
     random_start = random.randint(1, (321961 - amount))
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes',
@@ -18,14 +32,14 @@ def get_recipes(amount):
                                         'start':random_start })
     return all_recipes.json()
 
-
+@speed_test
 def get_filtered_recipes(label_list, amount):
     params = get_parameters(label_list, amount)
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
     recipes = all_recipes.json()
     return recipes['matches']
 
-
+@speed_test
 def get_parameters(label_list, amount):
     """Takes in a list of dietary labels and then returns a parameter list to be sent to the yummly api"""
     params={'_app_id':_app_id, '_app_key':_app_key,
@@ -161,17 +175,3 @@ def log_recommendation(dict_of_logs):
             the_file.write('\n\n')
         the_file.write('\n\n\n\n\n')
     return True
-
-
-def speed_test(func):
-    """wrapper function for testing speed"""
-    def wrapper(*args, **kwargs):
-        t1 = time.time()
-        for x in range(1):
-            results = func(*args, **kwargs)
-        t2 = time.time()
-        total_time = t2-t1
-        print('\n')
-        print('{} took {} seconds'.format(func.__name__, total_time))
-        return results
-    return wrapper
