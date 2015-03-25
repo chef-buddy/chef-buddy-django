@@ -133,8 +133,8 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
     for recipe_id, recipe_fc_list in recipe_id_fc_dict.items():
         if recipe_fc_list:
             in_common_fc_score = UserFlavorCompound.objects. \
-                             values_list('score', flat=True). \
-                             filter(user_id=user, flavor_id__in=list(recipe_fc_list))
+                                 values_list('score', flat=True). \
+                                 filter(user_id=user, flavor_id__in=list(recipe_fc_list))
             all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('score', flat=True)
             score = calculate_recipe_score(recipe_fc_list, in_common_fc_score, all_user_fc)
         else:
@@ -148,7 +148,8 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
     total_fc_score = sum([abs(fc) for fc in all_user_fc])
     normalized_scoring = [(fc/total_fc_score) for fc in user_fc_scores]
     engine_score = (sum(normalized_scoring) / len(recipe_fc_list))
-    return engine_score / .01 * 100
+    user_score = engine_score / .01 * 80
+    return user_score
 
 
 
