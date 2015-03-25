@@ -140,7 +140,6 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
         else:
             score = 0
         match_list.append((recipe_id, score))
-        print("match list {}".format(match_list))
     return match_list
 
 
