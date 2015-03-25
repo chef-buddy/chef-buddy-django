@@ -138,7 +138,7 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
             all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('score', flat=True)
             score = calculate_recipe_score(recipe_fc_list, in_common_fc_score, all_user_fc)
         else:
-            score = 0
+            score = -1
         match_list.append((recipe_id, score))
     return match_list
 
@@ -149,7 +149,6 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
     engine_score = (sum(normalized_scoring) / len(recipe_fc_list))
     user_score = engine_score / .01 * 80
     return user_score
-
 
 
 def large_image(json):
