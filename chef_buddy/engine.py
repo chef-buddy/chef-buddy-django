@@ -33,18 +33,24 @@ def get_recipes(amount):
     return all_recipes.json()
 
 @speed_test
-def get_filtered_recipes(label_list, amount):
-    params = get_parameters(label_list, amount)
+def get_filtered_recipes(search, label_list, amount):
+    params = get_parameters(search, label_list, amount)
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
     recipes = all_recipes.json()
     return recipes['matches']
 
 @speed_test
-def get_parameters(label_list, amount):
+def get_parameters(search, label_list, amount):
     """Takes in a list of dietary labels and then returns a parameter list to be sent to the yummly api"""
-    params={'_app_id':_app_id, '_app_key':_app_key,
-            'maxResult': amount, 'requirePictures':'true',
-            'allowedDiet[]':[], 'allowedAllergy[]':[]}
+    query = search.replace(' ', '+')
+    if query == '':
+        start = random.randint(1, 2000)
+    else:
+        start = 1
+    params = {'_app_id':_app_id, '_app_key':_app_key,
+              'maxResult': amount, 'requirePictures':'true',
+              'allowedDiet[]':[], 'allowedAllergy[]':[],
+              'q':query, 'start':start}
 
     allergy_dict = {'dairy': '396^Dairy-Free', 'egg': '397^Egg-Free',
                     'gluten': '393^Gluten-Free', 'peanut': '394^Peanut-Free',
