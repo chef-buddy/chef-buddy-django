@@ -58,7 +58,7 @@ def list_pre_engine(user, label_list, amount):
 @speed_test
 def pre_engine(user):
     start = time.time()
-    if UserFlavorCompound.objects.filter(user_id=user).count() < 30 or random.random() > .05:
+    if UserFlavorCompound.objects.filter(user_id=user).count() < 30 or random.random() < .05:
         raw_recipes = get_curated_random_recipes()
     else:
         raw_recipes = get_yummly_recipes()
