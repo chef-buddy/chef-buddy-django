@@ -160,12 +160,17 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
     engine_score = (sum(normalized_scoring) / len(recipe_fc_list))
     return engine_score
 
+
 def user_shown_score(recipe_fc_list, user):
+    print("recipe_fc_list {}".format(recipe_fc_list))
     in_common_fc_score = UserFlavorCompound.objects. \
                          filter(user_id=user, score__gte=1, flavor_id__in=list(recipe_fc_list)). \
                          values_list('flavor_id')
+    print("in_common_fc_list {}".format(in_common_fc_score))
     all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('flavor_id')
-
+    print("all_user_fc {}".format())
+    print("recipes_fc_length {}".format(len(recipe_fc_list)))
+    print("all_user_fc {}".format(len(all_user_fc)))
     if len(recipe_fc_list) == 0 or len(all_user_fc) < 40:
         return '?'
     else:

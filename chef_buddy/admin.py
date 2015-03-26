@@ -3,7 +3,7 @@ from chef_buddy.models import Recipe, IngredientFlavorCompound, UserFlavorCompou
 
 class RecipeAdmin(admin.ModelAdmin):
     fields = ['recipe_id', 'flavor_id']
-    search_fields = ['recipe_title']
+    search_fields = ['recipe_id']
     list_display = ('recipe_id', 'flavor_id')
 
 class IngredientFlavorCompoundAdmin(admin.ModelAdmin):
