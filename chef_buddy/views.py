@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
     recipes_to_fc_id, store_user_fc, user_to_recipe_counter, \
     store_recipe_fc, recipe_id_to_object, large_image, \
-    log_recommendation, get_filtered_recipes, get_curated_random_recipes
+    log_recommendation, get_filtered_recipes, get_curated_random_recipes, user_shown_score
 
 
 @api_view(['GET', 'POST'])
@@ -22,7 +22,7 @@ def show_top_recipe(request):
     store_user_fc(user, recipe, liked)
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user)
-    final_rec_result = post_engine(normalized_list[:amount], recipe_id_fc_dict, raw_recipes)
+    final_rec_result = post_engine(normalized_list[:amount], recipe_id_fc_dict, raw_recipes, user)
     log_recommendation({'user': user,
                         'recipe_id_fc_dict':recipe_id_fc_dict,
                         'normalized_list':normalized_list,
@@ -44,7 +44,7 @@ def recipe_list(request):
     raw_recipes = get_filtered_recipes(search, filters, amount)
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     sorted_list = rec_engine(recipe_id_fc_dict, user)
-    json_recipes = post_engine(sorted_list[:amount], recipe_id_fc_dict, raw_recipes)
+    json_recipes = post_engine(sorted_list[:amount], recipe_id_fc_dict, raw_recipes, user)
     return Response(json_recipes)
 
 @speed_test
@@ -82,13 +82,13 @@ def rec_engine(recipe_id_fc_dict, user):
     return scored_list
 
 @speed_test
-def post_engine(scored_list, recipe_id_fc_dict, raw_recipes):
+def post_engine(scored_list, recipe_id_fc_dict, raw_recipes, user):
     for recipe_id, score in scored_list:
         store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
     rec_object_list = []
     for recipe_id, score in scored_list:
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
-        rec_object['recommendation_score'] = round(score, 2)
+        rec_object['recommendation_score'] = user_shown_score(recipe_id_fc_dict[recipe_id], user)
         rec_object = large_image(rec_object)
         rec_object_list.append(rec_object)
     return rec_object_list
