@@ -56,7 +56,7 @@ def get_parameters(search, label_list, amount):
                     'gluten': '393^Gluten-Free', 'peanut': '394^Peanut-Free',
                     'seafood': '398^Seafood-Free', 'seasame': '399^Sesame-Free',
                     'soy': '400^Soy-Free', 'sulfite': '401^Sulfite-Free',
-                    'nut': '395^Tree+Nut-Free', 'wheat': '392^Wheat'}
+                    'nut': '395^Tree+Nut-Free', 'wheat': '392^Wheat-Free'}
 
     diet_dict = {'lacto': '388^Lacto vegetarian', 'ovo': '389^Ovo+vegetarian',
                  'pescetarian': '390^Pescetarian','vegan': '386^Vegan',
