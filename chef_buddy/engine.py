@@ -33,24 +33,30 @@ def get_recipes(amount):
     return all_recipes.json()
 
 @speed_test
-def get_filtered_recipes(label_list, amount):
-    params = get_parameters(label_list, amount)
+def get_filtered_recipes(search, label_list, amount):
+    params = get_parameters(search, label_list, amount)
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
     recipes = all_recipes.json()
     return recipes['matches']
 
 @speed_test
-def get_parameters(label_list, amount):
+def get_parameters(search, label_list, amount):
     """Takes in a list of dietary labels and then returns a parameter list to be sent to the yummly api"""
-    params={'_app_id':_app_id, '_app_key':_app_key,
-            'maxResult': amount, 'requirePictures':'true',
-            'allowedDiet[]':[], 'allowedAllergy[]':[]}
+    query = search.replace(' ', '+')
+    if query == '':
+        start = random.randint(1, 2000)
+    else:
+        start = 1
+    params = {'_app_id':_app_id, '_app_key':_app_key,
+              'maxResult': amount, 'requirePictures':'true',
+              'allowedDiet[]':[], 'allowedAllergy[]':[],
+              'q':query, 'start':start}
 
     allergy_dict = {'dairy': '396^Dairy-Free', 'egg': '397^Egg-Free',
                     'gluten': '393^Gluten-Free', 'peanut': '394^Peanut-Free',
                     'seafood': '398^Seafood-Free', 'seasame': '399^Sesame-Free',
                     'soy': '400^Soy-Free', 'sulfite': '401^Sulfite-Free',
-                    'nut': '395^Tree+Nut-Free', 'wheat': '392^Wheat'}
+                    'nut': '395^Tree+Nut-Free', 'wheat': '392^Wheat-Free'}
 
     diet_dict = {'lacto': '388^Lacto vegetarian', 'ovo': '389^Ovo+vegetarian',
                  'pescetarian': '390^Pescetarian','vegan': '386^Vegan',
@@ -67,6 +73,7 @@ def get_yummly_recipes():
     recipes = get_recipes(40)
     return recipes['matches']
 
+
 def get_curated_random_recipes():
     category_list = ['chicken', 'beef', 'bread', 'tomato', 'cake', 'tuna', 'strawberry',
                      'mexican', 'italian', 'chinese', 'seafood', 'potato', 'cheese']
@@ -77,6 +84,7 @@ def get_curated_random_recipes():
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
     recipes = all_recipes.json()
     return recipes['matches']
+
 
 def recipe_ingr_parse(recipe_list):
     """recipe_list = raw list of recipes directly from yummly
@@ -165,8 +173,10 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     """recipe_id = id of the recipe needing to be housed
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
+    print("flavor compounds {}".format(flavor_compounds))
     if not Recipe.objects.filter(recipe_id=recipe_id):
         recipe_list = [Recipe(recipe_id=str(recipe_id), flavor_id=int(fc_id)) for fc_id in flavor_compounds]
+        print("recipe list {}".format(recipe_list))
         Recipe.objects.bulk_create(recipe_list)
     return True
 
