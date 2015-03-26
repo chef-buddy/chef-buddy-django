@@ -1,5 +1,6 @@
 import random
 import time
+from operator import itemgetter
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
@@ -22,7 +23,7 @@ def show_top_recipe(request):
     store_user_fc(user, recipe, liked)
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user)
-    final_rec_result = post_engine(normalized_list[:amount], recipe_id_fc_dict, raw_recipes, user)
+    final_rec_result = post_engine(normalized_list[-1:], recipe_id_fc_dict, raw_recipes, user)
     log_recommendation({'user': user,
                         'recipe_id_fc_dict':recipe_id_fc_dict,
                         'normalized_list':normalized_list,
@@ -78,15 +79,14 @@ def rec_engine(recipe_id_fc_dict, user):
     Returns a list of recipes in tuple form (recipe_id, score)."""
 
     unsorted_score_list = user_to_recipe_counter(recipe_id_fc_dict, user)
-    scored_list = sorted(unsorted_score_list, key=lambda x: x[1], reverse=True)
+    scored_list = sorted(unsorted_score_list, key=lambda x: x[1])
     return scored_list
 
 @speed_test
 def post_engine(scored_list, recipe_id_fc_dict, raw_recipes, user):
-    for recipe_id, score in scored_list:
-        store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
     rec_object_list = []
     for recipe_id, score in scored_list:
+        store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
         rec_object['recommendation_score'] = user_shown_score(recipe_id_fc_dict[recipe_id], user)
         rec_object = large_image(rec_object)

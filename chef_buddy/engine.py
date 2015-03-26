@@ -147,10 +147,7 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
             all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('score', flat=True)
             score = calculate_recipe_score(recipe_fc_list, in_common_fc_score, all_user_fc)
         else:
-            if len(recipe_fc_list) > 20:
-                score = 1
-            else:
-                score = 0
+            score = 0
         match_list.append((recipe_id, score))
     return match_list
 
