@@ -1,5 +1,5 @@
 from django.contrib import admin
-from chef_buddy.models import Recipe, IngredientFlavorCompound, UserFlavorCompound, YummlyResponse
+from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound, YummlyResponse
 
 class RecipeAdmin(admin.ModelAdmin):
     fields = ['recipe_id', 'flavor_id']

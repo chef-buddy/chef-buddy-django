@@ -11,7 +11,7 @@ class Recipe(models.Model):
 
 
 class UserFlavorCompound(models.Model):
-    user_id = models.IntegerField()
+    user_id = models.IntegerField(db_index=True)
     flavor_id = models.IntegerField(null=True)
     score = models.IntegerField()
 
@@ -23,7 +23,7 @@ class UserFlavorCompound(models.Model):
 
 
 class IngredientFlavorCompound(models.Model):
-    ingredient_id = models.CharField(max_length=200)
+    ingredient_id = models.CharField(max_length=200, db_index=True)
     flavor_id = models.IntegerField()
 
     def __str__(self):

@@ -1,7 +1,7 @@
 import random
 import requests
 import os
-from .models import IngredientFlavorCompound, YummlyResponse, Recipe
+from .models import IngredientFlavorCompound, UserFlavorCompound, YummlyResponse, Recipe
 
 
 _app_id = '2c2e3eb7'
