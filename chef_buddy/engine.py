@@ -162,8 +162,9 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
 
 def user_shown_score(recipe_fc_list, user):
     in_common_fc_score = UserFlavorCompound.objects. \
-                         filter(user_id=user, score__gte=1, flavor_id__in=list(recipe_fc_list))
-    all_user_fc = UserFlavorCompound.objects.filter(user_id=user)
+                         filter(user_id=user, score__gte=1, flavor_id__in=list(recipe_fc_list)). \
+                         values_list('flavor_id')
+    all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('flavor_id')
 
     if len(recipe_fc_list) == 0 or len(all_user_fc) < 40:
         return '?'
