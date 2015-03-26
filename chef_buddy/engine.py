@@ -158,8 +158,18 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
     total_fc_score = sum([abs(fc) for fc in all_user_fc])
     normalized_scoring = [(fc/total_fc_score) for fc in user_fc_scores]
     engine_score = (sum(normalized_scoring) / len(recipe_fc_list))
-    user_score = engine_score / .01 * 80
-    return user_score
+    return engine_score
+
+def user_shown_score(recipe_fc_list, user):
+    in_common_fc_score = UserFlavorCompound.objects. \
+                         filter(user_id=user, score__gte=1, flavor_id__in=list(recipe_fc_list))
+    all_user_fc = UserFlavorCompound.objects.filter(user_id=user)
+
+    if len(recipe_fc_list) == 0 or len(all_user_fc) < 40:
+        return '?'
+    else:
+        user_score = (len(in_common_fc_score) / len(recipe_fc_list)) * 100
+        return round(user_score, 2)
 
 
 def large_image(json):
