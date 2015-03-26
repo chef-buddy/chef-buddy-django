@@ -88,6 +88,8 @@ def post_engine(scored_list, recipe_id_fc_dict, raw_recipes, user):
     print("scored list {}".format(scored_list))
     for recipe_id, score in scored_list:
         print("recipe id {}".format(recipe_id))
+        print("type rec id {}".format(type(recipe_id)))
+        print("recipe_id_fc_dict type {}".format(type(random.choice(list(recipe_id_fc_dict.keys())))))
         print("post_engine for loop {}".format(recipe_id_fc_dict[str(recipe_id)]))
         store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
