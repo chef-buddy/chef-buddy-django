@@ -146,16 +146,23 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
             all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('score', flat=True)
             score = calculate_recipe_score(recipe_fc_list, in_common_fc_score, all_user_fc)
         else:
-            score = -1
+            if len(recipe_fc_list) > 20:
+                score = 1
+            else:
+                score = 0
         match_list.append((recipe_id, score))
     return match_list
 
 
 def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
     total_fc_score = sum([abs(fc) for fc in all_user_fc])
+    print('total food compound score ', total_fc_score)
     normalized_scoring = [(fc/total_fc_score) for fc in user_fc_scores]
+
     engine_score = (sum(normalized_scoring) / len(recipe_fc_list))
+    print('engine score', engine_score)
     user_score = engine_score / .01 * 80
+    print('user score ', user_score)
     return user_score
 
 
@@ -173,10 +180,8 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     """recipe_id = id of the recipe needing to be housed
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
-    print("flavor compounds {}".format(flavor_compounds))
     if not Recipe.objects.filter(recipe_id=recipe_id):
         recipe_list = [Recipe(recipe_id=str(recipe_id), flavor_id=int(fc_id)) for fc_id in flavor_compounds]
-        print("recipe list {}".format(recipe_list))
         Recipe.objects.bulk_create(recipe_list)
     return True
 
