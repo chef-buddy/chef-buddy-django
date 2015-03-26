@@ -139,7 +139,6 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
     user = int(user)
     match_list = []
     for recipe_id, recipe_fc_list in recipe_id_fc_dict.items():
-        print("recipe_fc_list {}".format(recipe_fc_list))
         if recipe_fc_list:
             in_common_fc_score = UserFlavorCompound.objects. \
                                  values_list('score', flat=True). \
