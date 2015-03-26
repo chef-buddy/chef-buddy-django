@@ -136,7 +136,7 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
     """Takes in user's flavor compounds and recipe flavor compounds to produce a list of how
     many times the flavor compounds of the user appear in each recipe for the user. Each time
     a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
-
+    user = int(user)
     match_list = []
     for recipe_id, recipe_fc_list in recipe_id_fc_dict.items():
         if recipe_fc_list:
@@ -156,13 +156,9 @@ def user_to_recipe_counter(recipe_id_fc_dict, user):
 
 def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
     total_fc_score = sum([abs(fc) for fc in all_user_fc])
-    print('total food compound score ', total_fc_score)
     normalized_scoring = [(fc/total_fc_score) for fc in user_fc_scores]
-
     engine_score = (sum(normalized_scoring) / len(recipe_fc_list))
-    print('engine score', engine_score)
     user_score = engine_score / .01 * 80
-    print('user score ', user_score)
     return user_score
 
 
