@@ -1,5 +1,6 @@
 import random
 import time
+import after_response
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
@@ -19,14 +20,14 @@ def show_top_recipe(request):
     amount = 1
     post = request.POST.copy()
     user, liked, recipe = post.get('user', 1), post.get('liked', 0), post.get('recipe', '')
-    store_user_fc(user, recipe, liked)
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user)
     final_rec_result = post_engine(normalized_list[:amount], recipe_id_fc_dict, raw_recipes, user)
-    log_recommendation({'user': user,
-                        'recipe_id_fc_dict':recipe_id_fc_dict,
-                        'normalized_list':normalized_list,
-                        'final_rec_result':final_rec_result})
+    store_user_fc.after_response(user, recipe, liked)
+    log_recommendation.after_response({'user': user,
+                                       'recipe_id_fc_dict':recipe_id_fc_dict,
+                                       'normalized_list':normalized_list,
+                                       'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
 @api_view(['GET'])
