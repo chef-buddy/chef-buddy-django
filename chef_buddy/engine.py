@@ -171,6 +171,8 @@ def user_shown_score(recipe_fc_list, user):
     print("all_user_fc {}".format(all_user_fc))
     print("recipes_fc_length {}".format(len(recipe_fc_list)))
     print("all_user_fc {}".format(len(all_user_fc)))
+    print("t/f recipe_fc_list {}".format(len(recipe_fc_list) == 0))
+    print("t/f all_user_fc {}".format(len(all_user_fc) < 40))
     if (len(recipe_fc_list) == 0) or (len(all_user_fc) < 40):
         return '?'
     else:
