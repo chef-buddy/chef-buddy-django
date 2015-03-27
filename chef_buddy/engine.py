@@ -1,6 +1,7 @@
 import requests
 import random
 import time
+import after_response
 from datetime import datetime
 from django.db.models import F, Count
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
@@ -103,10 +104,10 @@ def recipes_to_fc_id(recipe_list):
     for recipe, ingredients in recipe_ingr_dict.items():
         recipe_fc_dict[recipe] = list(IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
                                                                  .values_list('flavor_id', flat=True))
-        print("recipe_fc_dict {}".format(recipe_fc_dict[recipe]))
     return recipe_fc_dict
 
 
+@after_response.enable
 def store_user_fc(user_id, recipe_id, taste):
     """Takes a user_id, recipe_id, and taste (should be a 1 or -1). It will lookup the recipe_id in the
     database to find associated food compounds. It will then lookup to see if the user has already liked
@@ -159,22 +160,15 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
 
 
 def user_shown_score(recipe_fc_list, user):
-    print("recipe_fc_list {}".format(recipe_fc_list))
     in_common_fc_score = UserFlavorCompound.objects. \
-                         filter(user_id=user, score__gte=1, flavor_id__in=list(recipe_fc_list)). \
+                         filter(user_id=user, score__gt=1, flavor_id__in=list(recipe_fc_list)). \
                          values_list('flavor_id')
-    print("in_common_fc_list {}".format(in_common_fc_score))
     all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('flavor_id')
-    print("all_user_fc {}".format(all_user_fc))
-    print("recipes_fc_length {}".format(len(recipe_fc_list)))
-    print("all_user_fc {}".format(len(all_user_fc)))
-    print("t/f recipe_fc_list {}".format(len(recipe_fc_list) == 0))
-    print("t/f all_user_fc {}".format(len(all_user_fc) < 40))
     if not recipe_fc_list or (len(all_user_fc) < 40):
         return '?'
     else:
         user_score = (len(in_common_fc_score) / len(recipe_fc_list)) * 100
-        return round(user_score, 2)
+        return round_float(user_score)
 
 
 def large_image(json):
@@ -197,6 +191,7 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     return True
 
 
+@after_response.enable
 def log_recommendation(dict_of_logs):
     with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
         the_file.write(str(datetime.now()))
@@ -208,3 +203,10 @@ def log_recommendation(dict_of_logs):
             the_file.write('\n\n')
         the_file.write('\n\n\n\n\n')
     return True
+
+
+def round_float(float):
+    """iround(number) -> integer
+    Round a number to the nearest integer."""
+    y = round(float) - .5
+    return int(y) + (y > 0)
