@@ -24,10 +24,10 @@ def show_top_recipe(request):
     normalized_list = rec_engine(recipe_id_fc_dict, user)
     store_user_fc.after_response(user, recipe, liked)
     final_rec_result = post_engine(normalized_list[-1:], recipe_id_fc_dict, raw_recipes, user)
-    log_recommendation({'user': user,
-                        'recipe_id_fc_dict':recipe_id_fc_dict,
-                        'normalized_list':normalized_list,
-                        'final_rec_result':final_rec_result})
+    log_recommendation.after_response({'user': user,
+                                       'recipe_id_fc_dict':recipe_id_fc_dict,
+                                       'normalized_list':normalized_list,
+                                       'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
 @api_view(['GET'])
@@ -82,7 +82,6 @@ def rec_engine(recipe_id_fc_dict, user):
 @speed_test
 def post_engine(scored_list, recipe_id_fc_dict, raw_recipes, user):
     rec_object_list = []
-    print("scored list {}".format(scored_list))
     for recipe_id, score in scored_list:
         store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
