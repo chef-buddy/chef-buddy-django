@@ -1,6 +1,7 @@
 import requests
 import random
 import time
+import after_response
 from datetime import datetime
 from django.db.models import F, Count
 from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
@@ -107,6 +108,7 @@ def recipes_to_fc_id(recipe_list):
     return recipe_fc_dict
 
 
+@after_response.enable
 def store_user_fc(user_id, recipe_id, taste):
     """Takes a user_id, recipe_id, and taste (should be a 1 or -1). It will lookup the recipe_id in the
     database to find associated food compounds. It will then lookup to see if the user has already liked
@@ -197,6 +199,7 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     return True
 
 
+@after_response.enable
 def log_recommendation(dict_of_logs):
     with open('chef_buddy/raw_data/rec_log.txt', 'a') as the_file:
         the_file.write(str(datetime.now()))
