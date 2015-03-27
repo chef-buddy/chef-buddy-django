@@ -22,12 +22,12 @@ def show_top_recipe(request):
     user, liked, recipe = post.get('user', 1), post.get('liked', 0), post.get('recipe', '')
     recipe_id_fc_dict, raw_recipes = pre_engine(user)
     normalized_list = rec_engine(recipe_id_fc_dict, user)
-    final_rec_result = post_engine(normalized_list[:amount], recipe_id_fc_dict, raw_recipes, user)
     store_user_fc.after_response(user, recipe, liked)
-    log_recommendation.after_response({'user': user,
-                                       'recipe_id_fc_dict':recipe_id_fc_dict,
-                                       'normalized_list':normalized_list,
-                                       'final_rec_result':final_rec_result})
+    final_rec_result = post_engine(normalized_list[-1:], recipe_id_fc_dict, raw_recipes, user)
+    log_recommendation({'user': user,
+                        'recipe_id_fc_dict':recipe_id_fc_dict,
+                        'normalized_list':normalized_list,
+                        'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
 @api_view(['GET'])
@@ -38,10 +38,7 @@ def recipe_list(request):
     amount = 10
     user = request.GET.get('user', 1)
     search = request.GET.get('search', '')
-    print("search {}".format(search))
-    print("user {}".format(user))
     filters = request.GET.getlist('filter', [])
-    print("filters {}".format(filters))
     raw_recipes = get_filtered_recipes(search, filters, amount)
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     sorted_list = rec_engine(recipe_id_fc_dict, user)
@@ -79,15 +76,15 @@ def rec_engine(recipe_id_fc_dict, user):
     Returns a list of recipes in tuple form (recipe_id, score)."""
 
     unsorted_score_list = user_to_recipe_counter(recipe_id_fc_dict, user)
-    scored_list = sorted(unsorted_score_list, key=lambda x: x[1], reverse=True)
+    scored_list = sorted(unsorted_score_list, key=lambda x: x[1])
     return scored_list
 
 @speed_test
 def post_engine(scored_list, recipe_id_fc_dict, raw_recipes, user):
+    rec_object_list = []
+    print("scored list {}".format(scored_list))
     for recipe_id, score in scored_list:
         store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
-    rec_object_list = []
-    for recipe_id, score in scored_list:
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
         rec_object['recommendation_score'] = user_shown_score(recipe_id_fc_dict[recipe_id], user)
         rec_object = large_image(rec_object)
