@@ -6,7 +6,9 @@ def seed_ingredients():
         reader = csv.reader(f)
         print('bulk creating...')
         IngredientFlavorCompound.objects.bulk_create([IngredientFlavorCompound(ingredient_id=row[0],
-                                                                               flavor_id=row[1]) for row in reader])
+                                                                               flavor_id=row[1],
+                                                                               score=row[2])
+                                                                               for row in reader])
 
 def seed_users():
     with open("chef_buddy/raw_data/user_fc.csv") as f:
