@@ -30,6 +30,8 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AFTER_RESPONSE_RUN_ASYNC = False
+
 
 # Application definition
 
@@ -40,8 +42,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'chef_buddy',
     'rest_framework',
+    'after_response'
 )
 
 MIDDLEWARE_CLASSES = (
