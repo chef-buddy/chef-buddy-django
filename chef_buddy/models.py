@@ -25,6 +25,7 @@ class UserFlavorCompound(models.Model):
 class IngredientFlavorCompound(models.Model):
     ingredient_id = models.CharField(max_length=200, db_index=True)
     flavor_id = models.IntegerField()
+    score = models.FloatField()
 
     def __str__(self):
         return self.ingredient_id
