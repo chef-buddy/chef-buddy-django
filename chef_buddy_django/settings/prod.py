@@ -14,7 +14,7 @@ import os
 #        'PORT': '5432',
 #        }
 # }
-
+#
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -25,3 +25,13 @@ DATABASES = {
         'PORT': os.environ['RDS_PORT'],
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'tastebud',
+#         'PASSWORD': 'tastebud',
+#         'HOST': "aasw87elqyv9i7.cq4v2ft4sf6d.us-east-1.rds.amazonaws.com",
+#         'PORT': 5432,
+#     }
+# }
+#
