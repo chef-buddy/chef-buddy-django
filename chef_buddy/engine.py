@@ -102,8 +102,8 @@ def recipes_to_fc_id(recipe_list):
     recipe_ingr_dict = recipe_ingr_parse(recipe_list)
     recipe_fc_dict = {}
     for recipe, ingredients in recipe_ingr_dict.items():
-        recipe_fc_dict[recipe] = list(IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
-                                                                 .values_list('flavor_id', flat=True))
+        recipe_fc_dict[recipe] = IngredientFlavorCompound.objects.filter(ingredient_id__in=ingredients)\
+                                                                 .values_list('flavor_id', 'score')
     return recipe_fc_dict
 
 
@@ -133,23 +133,29 @@ def recipe_id_to_object(recipe_id, recipe_list):
             return recipe
 
 
-def user_to_recipe_counter(recipe_id_fc_dict, user):
+def user_to_recipe_counter(recipe_id_dict, user):
     """Takes in user's flavor compounds and recipe flavor compounds to produce a list of how
     many times the flavor compounds of the user appear in each recipe for the user. Each time
     a flavor compound appears, the score associated with the user's fc will be added to the recipe"""
     user = int(user)
     match_list = []
-    for recipe_id, recipe_fc_list in recipe_id_fc_dict.items():
-        if recipe_fc_list:
-            in_common_fc_score = UserFlavorCompound.objects. \
-                                 values_list('score', flat=True). \
-                                 filter(user_id=user, flavor_id__in=list(recipe_fc_list))
+    for recipe_id, fc_score_list in recipe_id_dict.items():
+        if len(fc_score_list) > 0:
+            adj_scores, fc_list = in_common_fc_lookup(user, fc_score_list)
             all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('score', flat=True)
-            score = calculate_recipe_score(recipe_fc_list, in_common_fc_score, all_user_fc)
+            score = calculate_recipe_score(fc_list, adj_scores, all_user_fc)
         else:
             score = 0
         match_list.append((recipe_id, score))
     return match_list
+
+
+def in_common_fc_lookup(user, fc_score_list):
+    fc_list = [x[0] for x in fc_score_list]
+    in_common = dict(UserFlavorCompound.objects.values_list('flavor_id', 'score'). \
+                                                filter(user_id=user, flavor_id__in=list(fc_list)))
+    adjusted_score_list = [(in_common[fc_id]*score) for fc_id, score in fc_score_list if fc_id in in_common.keys()]
+    return adjusted_score_list, fc_list
 
 
 def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
@@ -160,6 +166,7 @@ def calculate_recipe_score(recipe_fc_list, user_fc_scores, all_user_fc):
 
 
 def user_shown_score(recipe_fc_list, user):
+    recipe_fc_list = [x[0] for x in recipe_fc_list]
     in_common_fc_score = UserFlavorCompound.objects. \
                          filter(user_id=user, score__gt=1, flavor_id__in=list(recipe_fc_list)). \
                          values_list('flavor_id')
@@ -186,7 +193,7 @@ def store_recipe_fc(recipe_id, flavor_compounds):
     flavor_compounds = list of flavor compounds associated with recipe
     This function is designed to take the above variables and store them in separate rows in the db"""
     if not Recipe.objects.filter(recipe_id=recipe_id):
-        recipe_list = [Recipe(recipe_id=str(recipe_id), flavor_id=int(fc_id)) for fc_id in flavor_compounds]
+        recipe_list = [Recipe(recipe_id=str(recipe_id), flavor_id=int(fc_id)) for fc_id, score in flavor_compounds]
         Recipe.objects.bulk_create(recipe_list)
     return True
 
