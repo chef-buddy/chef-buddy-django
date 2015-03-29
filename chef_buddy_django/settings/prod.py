@@ -10,8 +10,6 @@ DATABASES = {
         'USER': 'tastebud',
         'PASSWORD': os.environ['PASSWORD'],
         'HOST': os.environ['HOST'],
-        'PASSWORD': 'tastebud',
-        'HOST': "johnmitsch.cq4v2ft4sf6d.us-east-1.rds.amazonaws.com",
         'PORT': 5432,
     }
 }
