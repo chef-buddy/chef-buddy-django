@@ -44,9 +44,8 @@ def get_filtered_recipes(search, label_list, amount):
 def get_parameters(search, label_list, amount):
     """Takes in a list of dietary labels and then returns a parameter list to be sent to the yummly api"""
     query = search.replace(' ', '+')
-    if query == '':
-        start = random.randint(1, 2000)
-    else:
+    start = random.randint(1, 2000)
+    if query:
         start = 1
     params = {'_app_id':_app_id, '_app_key':_app_key,
               'maxResult': amount, 'requirePictures':'true',
