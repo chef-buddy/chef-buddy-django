@@ -24,10 +24,6 @@ def show_top_recipe(request):
     normalized_list = rec_engine(recipe_id_fc_dict, user)
     store_user_fc.after_response(user, recipe, liked)
     final_rec_result = post_engine(normalized_list[-1:], recipe_id_fc_dict, raw_recipes, user)
-    log_recommendation.after_response({'user': user,
-                                       'recipe_id_fc_dict':recipe_id_fc_dict,
-                                       'normalized_list':normalized_list,
-                                       'final_rec_result':final_rec_result})
     return Response(final_rec_result)
 
 @api_view(['GET'])
@@ -42,7 +38,7 @@ def recipe_list(request):
     raw_recipes = get_filtered_recipes(search, filters, amount)
     recipe_id_fc_dict = recipes_to_fc_id(raw_recipes)
     sorted_list = rec_engine(recipe_id_fc_dict, user)
-    json_recipes = post_engine(sorted_list[:amount], recipe_id_fc_dict, raw_recipes, user)
+    json_recipes = post_engine_list(sorted_list[:amount], recipe_id_fc_dict, raw_recipes, user)
     return Response(json_recipes)
 
 @speed_test
@@ -74,7 +70,6 @@ def rec_engine(recipe_id_fc_dict, user):
     user = id of the user that is being predicted for
     This function is the engine for picking a recipe given a user's food compounds.
     Returns a list of recipes in tuple form (recipe_id, score)."""
-
     unsorted_score_list = user_to_recipe_counter(recipe_id_fc_dict, user)
     scored_list = sorted(unsorted_score_list, key=lambda x: x[1])
     return scored_list
@@ -86,6 +81,16 @@ def post_engine(scored_list, recipe_id_fc_dict, raw_recipes, user):
         store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
         rec_object = recipe_id_to_object(recipe_id, raw_recipes)
         rec_object['recommendation_score'] = user_shown_score(recipe_id_fc_dict[recipe_id], user)
+        rec_object = large_image(rec_object)
+        rec_object_list.append(rec_object)
+    return rec_object_list
+
+@speed_test
+def post_engine_list(scored_list, recipe_id_fc_dict, raw_recipes, user):
+    rec_object_list = []
+    for recipe_id, score in scored_list:
+        store_recipe_fc(recipe_id, recipe_id_fc_dict[recipe_id])
+        rec_object = recipe_id_to_object(recipe_id, raw_recipes)
         rec_object = large_image(rec_object)
         rec_object_list.append(rec_object)
     return rec_object_list
