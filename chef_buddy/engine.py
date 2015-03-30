@@ -173,6 +173,9 @@ def user_shown_score(recipe_fc_list, user):
     if (len(all_user_fc) < 40):
         return '?'
     else:
+        total_compounds = len(recipe_fc_list)
+        if total_compounds == 0:
+            return 1
         user_score = (len(in_common_fc_score) / len(recipe_fc_list)) * 100
         return round_float(user_score)
 
