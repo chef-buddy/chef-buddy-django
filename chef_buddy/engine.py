@@ -170,7 +170,7 @@ def user_shown_score(recipe_fc_list, user):
                          filter(user_id=user, score__gt=1, flavor_id__in=list(recipe_fc_list)). \
                          values_list('flavor_id')
     all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('flavor_id')
-    if not recipe_fc_list or (len(all_user_fc) < 40):
+    if (len(all_user_fc) < 40):
         return '?'
     else:
         user_score = (len(in_common_fc_score) / len(recipe_fc_list)) * 100
