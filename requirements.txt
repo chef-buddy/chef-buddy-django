@@ -26,3 +26,4 @@ requests==2.6.0
 six==1.9.0
 whitenoise==1.0.6
 jsonfield==1.0.3
+seaborn==0.5.1
