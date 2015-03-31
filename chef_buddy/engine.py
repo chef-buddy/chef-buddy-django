@@ -88,13 +88,14 @@ def get_curated_random_recipes():
 
 
 def get_static_recipes():
-    num_list = random.sample(range(1, 101), 10)
-    recipe_list = StaticRecipe.objects.filter(id__in=num_list).values()
-    print(recipe_list)
+    #num_list = random.sample(range(1, 101), 10)
+    num_list = [3]
+    recipe_list = StaticRecipe.objects.filter(num_id__in=num_list).values()
     for recipe in recipe_list:
         recipe['ingredients'] = StaticIngredient.objects.filter(recipe_num_id=recipe). \
                                                          values_list('ingredient', flat=True)
-        recipe['imageUrlsBySize']['90'] = recipe['imageUrlsBySize']
+
+        recipe['imageUrlsBySize'] = {'90':recipe['imageUrlsBySize']}
     return recipe_list
 
 

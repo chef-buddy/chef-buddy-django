@@ -1,5 +1,6 @@
 import csv
-from chef_buddy.models import IngredientFlavorCompound, UserFlavorCompound, StaticRecipe
+from chef_buddy.models import IngredientFlavorCompound, UserFlavorCompound, \
+                              StaticRecipe, StaticIngredient
 
 def seed_ingredients():
     with open("chef_buddy/raw_data/master_fc_ing.csv") as f:
