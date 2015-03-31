@@ -35,7 +35,7 @@ def seed_recipes():
             recipe = StaticRecipe(id=row[0],recipeName=row[1], imageUrlsBySize=row[2],
                                   sourceDisplayName=row[3])
             recipe_list.append(recipe)
-            ingredient = [StaticIngredient(recipe_num_id=recipe.id, ingredient=ing) for ing in row[4].split(';')]
+            ingredient = [StaticIngredient(recipe_id=recipe.id, ingredient=ing) for ing in row[4].split(';')]
             ingredient_list.extend(ingredient)
         StaticIngredient.objects.bulk_create(ingredient_list)
         StaticRecipe.objects.bulk_create(recipe_list)

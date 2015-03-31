@@ -51,11 +51,11 @@ class StaticRecipe(models.Model):
 
 
 class StaticIngredient(models.Model):
-    recipe_num_id = models.CharField(max_length=200)
+    recipe_id = models.CharField(max_length=200)
     ingredient = models.CharField(max_length=200)
 
     class Meta:
-        unique_together = ("recipe_num_id", "ingredient")
+        unique_together = ("recipe_id", "ingredient")
 
     def __str__(self):
         return self.ingredient
