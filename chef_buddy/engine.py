@@ -4,7 +4,8 @@ import time
 import after_response
 from datetime import datetime
 from django.db.models import F, Count
-from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
+from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound \
+                              StaticRecipe, StaticIngredient
 import os
 
 _app_id = os.environ['APP_ID']
@@ -84,6 +85,17 @@ def get_curated_random_recipes():
     all_recipes = requests.get('http://api.yummly.com/v1/api/recipes', params=params)
     recipes = all_recipes.json()
     return recipes['matches']
+
+
+def get_static_recipes():
+    num_list = random.sample(range(1, 101), 10)
+    recipe_list = StaticRecipe.objects.values(id__in=num_list)
+    print(recipe_list)
+    for recipe in recipe_list:
+        recipe['ingredients'] = StaticIngredient.objects.filter(recipe_id=recipe). \
+                                                         values_list('ingredient', flat=True)
+        recipe['imageUrlsBySize']['90'] = recipe['imageUrlsBySize']
+    return recipe_list
 
 
 def recipe_ingr_parse(recipe_list):

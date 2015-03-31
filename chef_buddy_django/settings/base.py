@@ -44,7 +44,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'chef_buddy',
     'rest_framework',
-    'after_response'
+    'after_response',
+    'django_extensions'
 )
 
 MIDDLEWARE_CLASSES = (
