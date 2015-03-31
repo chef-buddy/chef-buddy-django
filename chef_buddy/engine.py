@@ -4,8 +4,8 @@ import time
 import after_response
 from datetime import datetime
 from django.db.models import F, Count
-from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound \
-                              StaticRecipe, StaticIngredient
+from chef_buddy.models import Recipe, UserFlavorCompound, IngredientFlavorCompound
+from chef_buddy.models import StaticRecipe, StaticIngredient
 import os
 
 _app_id = os.environ['APP_ID']
@@ -89,10 +89,10 @@ def get_curated_random_recipes():
 
 def get_static_recipes():
     num_list = random.sample(range(1, 101), 10)
-    recipe_list = StaticRecipe.objects.values(id__in=num_list)
+    recipe_list = StaticRecipe.objects.filter(id__in=num_list).values()
     print(recipe_list)
     for recipe in recipe_list:
-        recipe['ingredients'] = StaticIngredient.objects.filter(recipe_id=recipe). \
+        recipe['ingredients'] = StaticIngredient.objects.filter(recipe_num_id=recipe). \
                                                          values_list('ingredient', flat=True)
         recipe['imageUrlsBySize']['90'] = recipe['imageUrlsBySize']
     return recipe_list

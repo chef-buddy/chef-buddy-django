@@ -40,8 +40,8 @@ class YummlyResponse(models.Model):
 
 
 class StaticRecipe(models.Model):
-    num_id = models.AutoField()
-    id = models.CharField(max_length=200, primary_key=True)
+    num_id = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=200)
     recipeName = models.CharField(max_length=300)
     imageUrlsBySize = models.CharField(max_length=300)
     sourceDisplayName = models.CharField(max_length=200)
@@ -51,11 +51,11 @@ class StaticRecipe(models.Model):
 
 
 class StaticIngredient(models.Model):
-    recipe_id = models.CharField(max_length=200)
+    recipe_num_id = models.CharField(max_length=200)
     ingredient = models.CharField(max_length=200)
 
     class Meta:
-        unique_together = ("recipe_id", "ingredient")
+        unique_together = ("recipe_num_id", "ingredient")
 
     def __str__(self):
         return self.ingredient

@@ -9,7 +9,8 @@ from django.utils.decorators import method_decorator
 from chef_buddy.engine import speed_test, get_recipes, get_yummly_recipes, \
     recipes_to_fc_id, store_user_fc, user_to_recipe_counter, \
     store_recipe_fc, recipe_id_to_object, large_image, \
-    log_recommendation, get_filtered_recipes, get_curated_random_recipes, user_shown_score
+    log_recommendation, get_filtered_recipes, get_curated_random_recipes, user_shown_score, \
+    get_static_recipes
 
 
 @api_view(['GET', 'POST'])
