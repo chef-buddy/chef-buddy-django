@@ -186,7 +186,7 @@ def large_image(json):
     :return: json object
     """
     image = json["imageUrlsBySize"]['90']
-    json['largeImage'] = image.replace('=s90-c', '=s600')
+    json['largeImage'] = image.replace('=s90-c', '=s600-c')
     return json
 
 
