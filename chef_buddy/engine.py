@@ -170,14 +170,12 @@ def user_shown_score(recipe_fc_list, user):
                          filter(user_id=user, score__gt=1, flavor_id__in=list(recipe_fc_list)). \
                          values_list('flavor_id')
     all_user_fc = UserFlavorCompound.objects.filter(user_id=user).values_list('flavor_id')
-    if (len(all_user_fc) < 40):
+    if not recipe_fc_list or (len(all_user_fc) < 40):
         return '?'
     else:
-        total_compounds = len(recipe_fc_list)
-        if total_compounds == 0:
-            return 1
         user_score = (len(in_common_fc_score) / len(recipe_fc_list)) * 100
         return round_float(user_score)
+
 
 
 def large_image(json):
